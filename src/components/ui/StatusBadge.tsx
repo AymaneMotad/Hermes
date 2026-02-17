@@ -8,18 +8,18 @@ const statusConfig: Record<
 > = {
   idle: {
     label: 'Idle',
-    className: 'text-[#5c6164]',
-    dotColor: 'bg-[#7a828a]',
+    className: 'text-[#8ea2ba]',
+    dotColor: 'bg-[#7f93aa]',
   },
   working: {
     label: 'Working',
-    className: 'text-[#4a6a80]',
-    dotColor: 'bg-[#5a7c94]',
+    className: 'text-[#9fd8c2]',
+    dotColor: 'bg-[#59b88f]',
   },
   alert: {
     label: 'Alert',
-    className: 'text-[#8a4a4a]',
-    dotColor: 'bg-[#a85a5a]',
+    className: 'text-[#f0c7c7]',
+    dotColor: 'bg-[#cc7070]',
   },
 };
 

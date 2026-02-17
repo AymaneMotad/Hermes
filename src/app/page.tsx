@@ -5,7 +5,6 @@ import { usePersonaStore } from '@/store/usePersonaStore';
 import { FeaturesPanel } from '@/components/dashboard/FeaturesPanel';
 import { PersonaCard } from '@/components/dashboard/PersonaCard';
 import { OfficeCanvas } from '@/components/office/OfficeCanvas';
-import { lumon } from '@/theme/severance';
 import { VIEW_WIDTH, VIEW_HEIGHT } from '@/lib/officeLayout';
 
 const PHASE_LABELS: Record<string, string> = {
@@ -25,57 +24,70 @@ function SelectedPersonaLabel() {
   const phase = agentPhases[selected.id];
   const phaseLabel = phase ? PHASE_LABELS[phase] ?? phase : null;
   return (
-    <span className="text-xs" style={{ color: lumon.inkMuted }}>
-      Selected: <span className="font-medium" style={{ color: lumon.ink }}>{selected.name}</span>
+    <span className="text-xs" style={{ color: '#8ea2ba' }}>
+      Selected: <span className="font-medium" style={{ color: '#e8eef6' }}>{selected.name}</span>
       {phaseLabel && (
-        <> — <span style={{ color: lumon.fluorescentBlue }}>{phaseLabel}</span></>
+        <> — <span style={{ color: '#8ab2da' }}>{phaseLabel}</span></>
       )}
     </span>
   );
 }
 
 export default function Home() {
-  usePersonaWebSocket();
+  const { connected } = usePersonaWebSocket();
   const personas = usePersonaStore((s) => s.personas);
+  const activeAgents = personas.filter((p) => p.status === 'working').length;
+  const alertAgents = personas.filter((p) => p.status === 'alert').length;
 
   return (
     <main
       className="flex h-screen w-screen overflow-hidden"
-      style={{ backgroundColor: lumon.sage }}
+      style={{ backgroundColor: '#0f1722' }}
     >
       <FeaturesPanel />
       <div className="flex min-w-0 flex-1 flex-col overflow-auto">
         <header
           className="flex shrink-0 items-center justify-between border-b px-6 py-4"
           style={{
-            borderColor: lumon.fluorescentBlue,
-            backgroundColor: lumon.white,
-            boxShadow: `0 1px 0 ${lumon.stripLight}`,
+            borderColor: '#2c3a4c',
+            backgroundColor: '#141d2a',
+            boxShadow: '0 1px 0 #1f2b3a',
           }}
         >
           <div>
             <p
               className="text-[10px] font-medium uppercase tracking-[0.2em]"
-              style={{ color: lumon.inkMuted }}
+              style={{ color: '#7f93aa' }}
             >
-              Lumon Industries
+              Enterprise Operations
             </p>
-            <h1 className="text-lg font-semibold" style={{ color: lumon.ink }}>
-              Persona Operations
+            <h1 className="text-lg font-semibold" style={{ color: '#e8eef6' }}>
+              Agent Orchestration Console
             </h1>
-            <p className="text-sm" style={{ color: lumon.inkMuted }}>
-              Macrodata Refinement — floor view
+            <p className="text-sm" style={{ color: '#8ea2ba' }}>
+              Live simulator for parallel digital workers
             </p>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] font-medium">
+            <span className="rounded border border-[#2f4158] bg-[#1a2534] px-2.5 py-1 text-[#c9d7e8]">
+              Active {activeAgents}/{personas.length}
+            </span>
+            <span className="rounded border border-[#2f4158] bg-[#1a2534] px-2.5 py-1 text-[#f0c7c7]">
+              Alerts {alertAgents}
+            </span>
+            <span className={`rounded border px-2.5 py-1 ${connected ? 'border-[#2d5a4a] bg-[#17372f] text-[#a9e7ce]' : 'border-[#5a2d2d] bg-[#381d1d] text-[#f1b0b0]'}`}>
+              {connected ? 'Stream Online' : 'Stream Offline'}
+            </span>
           </div>
         </header>
 
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6" style={{ backgroundColor: '#0f1722' }}>
           <div className="mb-4 flex items-center justify-between">
             <h2
               className="text-xs font-medium uppercase tracking-wider"
-              style={{ color: lumon.inkMuted }}
+              style={{ color: '#7f93aa' }}
             >
-              Operators
+              Agent Fleet
             </h2>
             <SelectedPersonaLabel />
           </div>
@@ -88,34 +100,34 @@ export default function Home() {
           <div>
             <h2
               className="mb-2 text-xs font-medium uppercase tracking-wider"
-              style={{ color: lumon.inkMuted }}
+              style={{ color: '#7f93aa' }}
             >
-              Live floor
+              Live Floor Simulator
             </h2>
             <div
               className="inline-block overflow-hidden rounded border-2 shadow-md"
               style={{
-                borderColor: lumon.inkMuted,
-                backgroundColor: lumon.white,
-                boxShadow: `inset 0 0 0 1px ${lumon.fluorescentBlue}, 0 4px 12px ${lumon.ink}18`,
+                borderColor: '#2c3a4c',
+                backgroundColor: '#111927',
+                boxShadow: 'inset 0 0 0 1px #233247, 0 8px 26px #03060c',
               }}
             >
               <div
                 className="flex items-center gap-2 px-2 py-1"
                 style={{
-                  backgroundColor: lumon.white,
-                  borderBottom: `1px solid ${lumon.fluorescentBlue}`,
+                  backgroundColor: '#182334',
+                  borderBottom: '1px solid #2c3a4c',
                 }}
               >
                 <span
                   className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: lumon.working }}
+                  style={{ backgroundColor: connected ? '#4ab990' : '#ba5b5b' }}
                 />
                 <span
                   className="text-[10px] uppercase tracking-wider"
-                  style={{ color: lumon.inkMuted }}
+                  style={{ color: '#8ea2ba' }}
                 >
-                  2D office simulation
+                  Realtime agent simulation
                 </span>
               </div>
               <div style={{ width: VIEW_WIDTH, height: VIEW_HEIGHT }}>

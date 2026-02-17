@@ -12,9 +12,9 @@ function FeatureItem({ label, icon }: { label: string; icon: string }) {
   return (
     <button
       type="button"
-      className="flex w-full items-center gap-3 rounded-lg border border-[#D4E5D4] bg-[#F8F9FA] px-3 py-2.5 text-left text-sm text-[#2a2d2e] transition-colors hover:border-[#B8D4B8] hover:bg-[#E8F4F8]"
+      className="flex w-full items-center gap-3 rounded-md border border-[#2f3f56] bg-[#182434] px-3 py-2.5 text-left text-sm text-[#d8e2ee] transition-colors hover:border-[#415774] hover:bg-[#1f2f43]"
     >
-      <span className="text-[#5c6164]">{icon}</span>
+      <span className="text-[#8ea2ba]">{icon}</span>
       {label}
     </button>
   );
@@ -22,15 +22,15 @@ function FeatureItem({ label, icon }: { label: string; icon: string }) {
 
 export function FeaturesPanel() {
   return (
-    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-[#D4E5D4] bg-[#F8F9FA]">
-      <header className="shrink-0 border-b border-[#D4E5D4] px-4 py-3">
-        <p className="text-[10px] font-medium uppercase tracking-widest text-[#5c6164]">
-          Hermes Q
+    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-[#2c3a4c] bg-[#121b28]">
+      <header className="shrink-0 border-b border-[#2c3a4c] px-4 py-3">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8ea2ba]">
+          HERMES Q
         </p>
       </header>
 
       <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
-        <h2 className="mb-3 text-[11px] font-medium uppercase tracking-wider text-[#5c6164]">
+        <h2 className="mb-3 text-[11px] font-medium uppercase tracking-wider text-[#8ea2ba]">
           Features
         </h2>
         <div className="flex flex-col gap-2">
@@ -40,8 +40,8 @@ export function FeaturesPanel() {
         </div>
       </nav>
 
-      <footer className="shrink-0 border-t border-[#D4E5D4] px-4 py-2">
-        <p className="text-[10px] text-[#5c6164]">v1.0</p>
+      <footer className="shrink-0 border-t border-[#2c3a4c] px-4 py-2">
+        <p className="text-[10px] text-[#8ea2ba]">v1.0 enterprise preview</p>
       </footer>
     </aside>
   );
