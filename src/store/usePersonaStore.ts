@@ -20,6 +20,14 @@ const d1 = getDeskPosition('desk-1');
 const d2 = getDeskPosition('desk-2');
 const d3 = getDeskPosition('desk-3');
 const d4 = getDeskPosition('desk-4');
+const d5 = getDeskPosition('desk-5');
+const d6 = getDeskPosition('desk-6');
+const d7 = getDeskPosition('desk-7');
+const d8 = getDeskPosition('desk-8');
+const d9 = getDeskPosition('desk-9');
+const d10 = getDeskPosition('desk-10');
+const d11 = getDeskPosition('desk-11');
+const d12 = getDeskPosition('desk-12');
 
 const initialPersonas: Persona[] = [
   {
@@ -68,6 +76,100 @@ const initialPersonas: Persona[] = [
     currentTask: 'Anomaly detection',
     errorMessage: 'Threshold exceeded',
     tasksToday: 31,
+    lastActive: 'Now',
+    behavior: 'wanderer',
+  },
+  {
+    id: 'atlas',
+    name: 'Riley',
+    role: 'synthesis',
+    status: 'working',
+    position: [d5.x, d5.y],
+    deskId: 'desk-5',
+    currentTask: 'Signal fusion',
+    tasksToday: 27,
+    lastActive: 'Now',
+    behavior: 'focused',
+  },
+  {
+    id: 'watchtower',
+    name: 'Morgan',
+    role: 'control',
+    status: 'idle',
+    position: [d6.x, d6.y],
+    deskId: 'desk-6',
+    tasksToday: 16,
+    lastActive: '11m ago',
+    behavior: 'coordinator',
+  },
+  {
+    id: 'relay',
+    name: 'Taylor',
+    role: 'monitoring',
+    status: 'working',
+    position: [d7.x, d7.y],
+    deskId: 'desk-7',
+    currentTask: 'Lane synchronization',
+    tasksToday: 33,
+    lastActive: 'Now',
+    behavior: 'social',
+  },
+  {
+    id: 'beacon',
+    name: 'Quinn',
+    role: 'analysis',
+    status: 'idle',
+    position: [d8.x, d8.y],
+    deskId: 'desk-8',
+    tasksToday: 19,
+    lastActive: '8m ago',
+    behavior: 'wanderer',
+  },
+  {
+    id: 'forge',
+    name: 'Harper',
+    role: 'research',
+    status: 'working',
+    position: [d9.x, d9.y],
+    deskId: 'desk-9',
+    currentTask: 'Scenario synthesis',
+    tasksToday: 22,
+    lastActive: 'Now',
+    behavior: 'focused',
+  },
+  {
+    id: 'pulse',
+    name: 'Avery',
+    role: 'reporting',
+    status: 'idle',
+    position: [d10.x, d10.y],
+    deskId: 'desk-10',
+    tasksToday: 14,
+    lastActive: '14m ago',
+    behavior: 'social',
+  },
+  {
+    id: 'vector',
+    name: 'Parker',
+    role: 'synthesis',
+    status: 'alert',
+    position: [d11.x, d11.y],
+    deskId: 'desk-11',
+    currentTask: 'Confidence audit',
+    errorMessage: 'Escalation policy mismatch',
+    tasksToday: 29,
+    lastActive: 'Now',
+    behavior: 'coordinator',
+  },
+  {
+    id: 'helix',
+    name: 'Dakota',
+    role: 'control',
+    status: 'working',
+    position: [d12.x, d12.y],
+    deskId: 'desk-12',
+    currentTask: 'Fallback routing',
+    tasksToday: 35,
     lastActive: 'Now',
     behavior: 'wanderer',
   },

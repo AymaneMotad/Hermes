@@ -61,14 +61,15 @@ export function usePersonaWebSocket(url?: string) {
       // Mock: cycle statuses for demo
       mockIntervalRef.current = setInterval(() => {
         const statuses: PersonaStatus[] = ['idle', 'working', 'alert'];
-        const ids = ['openclaw', 'sentinel', 'scribe', 'nexus'];
+        const ids = usePersonaStore.getState().personas.map((p) => p.id);
+        if (ids.length === 0) return;
         const randomId = ids[Math.floor(Math.random() * ids.length)];
         const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
         updatePersonaStatus(randomId, randomStatus, {
           currentTask: randomStatus === 'working' ? 'Processing...' : undefined,
           errorMessage: randomStatus === 'alert' ? 'Attention required' : undefined,
         });
-      }, 8000);
+      }, 4500);
     }
     return () => {
       if (wsRef.current) {

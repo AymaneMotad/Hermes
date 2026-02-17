@@ -7,11 +7,11 @@ import { usePersonaStore } from '@/store/usePersonaStore';
 import { getDeskPosition, getWaypoint } from '@/lib/officeLayout';
 
 const TICK_MS = 120;
-const WALK_SPEED = 2.2;
-const SIT_TYPING_MIN_MS = 3000;
-const SIT_TYPING_MAX_MS = 10000;
-const STAND_DURATION_MS = 600;
-const ARRIVAL_DIST = 6;
+const WALK_SPEED = 4.6;
+const SIT_TYPING_MIN_MS = 1800;
+const SIT_TYPING_MAX_MS = 6200;
+const STAND_DURATION_MS = 500;
+const ARRIVAL_DIST = 8;
 const MAX_WALK_DURATION_MS = 16000;
 
 type InternalState = {

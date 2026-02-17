@@ -25,11 +25,37 @@ const COLORS = {
 };
 
 const PHASE_CHAT: Record<AgentPhase, string[]> = {
-  idle: ['Node ready. Standing by.', 'Worker online and monitoring.'],
-  typing: ['Processing queue shard.', 'Running parallel batch.', 'Committing task output.'],
-  stand: ['Sync complete. Awaiting next step.', 'Holding station.'],
-  walk: ['Routing to service station.', 'Moving to support waypoint.'],
-  sit: ['Back at desk. Pipeline resumed.', 'Desk node active again.'],
+  idle: [
+    'Node ready. Standing by.',
+    'Worker online and monitoring.',
+    'Awaiting mission fragment.',
+    'Telemetry stable and synced.',
+  ],
+  typing: [
+    'Processing queue shard.',
+    'Running parallel batch.',
+    'Committing task output.',
+    'Evaluating confidence signal.',
+    'Cross-checking policy constraints.',
+  ],
+  stand: [
+    'Sync complete. Awaiting next step.',
+    'Holding station.',
+    'Lane handoff in progress.',
+    'Quick coordination pause.',
+  ],
+  walk: [
+    'Routing to service station.',
+    'Moving to support waypoint.',
+    'Repositioning for next cycle.',
+    'Transferring work context.',
+  ],
+  sit: [
+    'Back at desk. Pipeline resumed.',
+    'Desk node active again.',
+    'Resuming local execution lane.',
+    'Cycle complete, continuing.',
+  ],
 };
 
 const LOCATION_CHAT = {
@@ -45,18 +71,19 @@ const PHASE_SCALE: Record<AgentPhase, number> = {
   sit: 0.92,
 };
 
-const CHAT_MIN_INTERVAL_MS = 7000;
+const CHAT_MIN_INTERVAL_MS = 2600;
 const CHAT_BY_PHASE_PROBABILITY: Record<AgentPhase, number> = {
-  idle: 0.15,
-  typing: 0.45,
-  stand: 0,
-  walk: 0,
-  sit: 0.2,
+  idle: 0.35,
+  typing: 0.72,
+  stand: 0.55,
+  walk: 0.42,
+  sit: 0.45,
 };
 
-const CONVERSATION_COOLDOWN_MS = 9000;
-const CONVERSATION_REPLY_DELAY_MS = 850;
-const CONVERSATION_TRIGGER_PROBABILITY = 0.5;
+const CONVERSATION_COOLDOWN_MS = 2800;
+const CONVERSATION_REPLY_DELAY_MS = 500;
+const CONVERSATION_TRIGGER_PROBABILITY = 0.82;
+const AMBIENT_CHAT_INTERVAL_MS = 1600;
 
 const CONVO_STARTERS = [
   'Can you take the next queue partition?',
@@ -70,6 +97,15 @@ const CONVO_REPLIES = [
   'Acknowledged. Taking this lane.',
   'Copy that. Validating now.',
   'Handled. Sending status update.',
+];
+
+const AMBIENT_CHAT = [
+  'Desk cluster synchronized.',
+  'Service lane active.',
+  'Confidence trend improving.',
+  'Escalation queue clear.',
+  'Printer lane stable.',
+  'Coffee node refueled.',
 ];
 
 type AgentVisual = {
@@ -109,6 +145,7 @@ export function OfficeCanvas() {
   const selectedIdRef = useRef<string | null>(null);
   const personasByIdRef = useRef<Map<string, Persona>>(new Map());
   const conversationCooldownRef = useRef(0);
+  const ambientChatAtRef = useRef(0);
   const pendingRepliesRef = useRef<PendingReply[]>([]);
   const personas = usePersonaStore((s) => s.personas);
   const agentPhases = usePersonaStore((s) => s.agentPhases);
@@ -138,6 +175,12 @@ export function OfficeCanvas() {
     }
     root.addChild(floorGrid);
 
+    const zoneTint = new Graphics();
+    zoneTint.roundRect(84, 70, 540, 390, 18).fill(0x253142, 0.24);
+    zoneTint.roundRect(700, 88, 180, 120, 14).fill(0x314055, 0.3);
+    zoneTint.roundRect(700, 315, 180, 120, 14).fill(0x314055, 0.3);
+    root.addChild(zoneTint);
+
     const walls = new Graphics();
     walls.rect(0, 0, VIEW_WIDTH, 24).fill(COLORS.wall);
     walls.rect(0, 0, 24, VIEW_HEIGHT).fill(COLORS.wall);
@@ -151,11 +194,27 @@ export function OfficeCanvas() {
 
     const ceilingLights = new Graphics();
     const lightY = 10;
-    [120, 250, 380, 510].forEach((x) => {
+    [90, 220, 350, 480, 610, 740, 870].forEach((x) => {
       ceilingLights.rect(x - 30, lightY, 60, 4).fill(0xb7d4ef, 0.62);
       ceilingLights.rect(x - 26, lightY + 1, 52, 2).fill(0xd8e8f6, 0.78);
     });
     root.addChild(ceilingLights);
+
+    const labels = new TextStyle({
+      fill: 0x9ab0c8,
+      fontSize: 10,
+      fontFamily: 'IBM Plex Sans, system-ui, sans-serif',
+      fontWeight: '600',
+    });
+    const operationsLabel = new Text({ text: 'OPEN FLOOR - EXECUTION LANES', style: labels });
+    operationsLabel.position.set(36, 34);
+    root.addChild(operationsLabel);
+    const printerLabel = new Text({ text: 'SERVICE / PRINTER', style: labels });
+    printerLabel.position.set(PRINTER.x - 62, PRINTER.y - 44);
+    root.addChild(printerLabel);
+    const coffeeLabel = new Text({ text: 'SERVICE / COFFEE', style: labels });
+    coffeeLabel.position.set(COFFEE.x - 60, COFFEE.y - 44);
+    root.addChild(coffeeLabel);
   }, []);
 
   const drawFurniture = useCallback((root: Container) => {
@@ -213,6 +272,40 @@ export function OfficeCanvas() {
     mugs.rect(COFFEE.x - 6, COFFEE.y + 20, 5, 4).fill(0xb6c4d3).stroke({ width: 1, color: 0x667486 });
     mugs.rect(COFFEE.x + 2, COFFEE.y + 20, 5, 4).fill(0xcdd6e2).stroke({ width: 1, color: 0x727d90 });
     root.addChild(mugs);
+
+    const meetingTable = new Graphics();
+    meetingTable.roundRect(700, 222, 180, 72, 12).fill(0x455366).stroke({ width: 1, color: 0x8aa0be });
+    meetingTable.roundRect(708, 230, 164, 56, 8).fill(0x55657a, 0.6);
+    root.addChild(meetingTable);
+
+    const meetingChairs = new Graphics();
+    [714, 756, 798, 840].forEach((x) => {
+      meetingChairs.roundRect(x, 206, 24, 10, 3).fill(0x64778f);
+      meetingChairs.roundRect(x, 296, 24, 10, 3).fill(0x64778f);
+    });
+    root.addChild(meetingChairs);
+
+    const storageWall = new Graphics();
+    storageWall.rect(916, 84, 32, 360).fill(0x2a3443).stroke({ width: 1, color: 0x5d718c });
+    for (let y = 96; y < 430; y += 28) {
+      storageWall.rect(920, y, 24, 16).fill(0x3b4a5d);
+    }
+    root.addChild(storageWall);
+
+    const plants = new Graphics();
+    const plantSpots: [number, number][] = [
+      [650, 110],
+      [650, 400],
+      [892, 110],
+      [892, 400],
+    ];
+    plantSpots.forEach(([x, y]) => {
+      plants.roundRect(x - 8, y + 8, 16, 8, 2).fill(0x5a6678);
+      plants.circle(x, y, 10).fill(0x56886f);
+      plants.circle(x - 6, y + 2, 6).fill(0x6ea385);
+      plants.circle(x + 6, y + 2, 6).fill(0x6ea385);
+    });
+    root.addChild(plants);
   }, []);
 
   const renderBubble = useCallback((visual: AgentVisual, text: string, nowMs: number, durationMs = 2200) => {
@@ -341,9 +434,9 @@ export function OfficeCanvas() {
     const [x, y] = position;
     const distPrinter = Math.hypot(x - PRINTER.x, y - PRINTER.y);
     const distCoffee = Math.hypot(x - COFFEE.x, y - COFFEE.y);
-    if (distPrinter < 12) return 'printer';
-    if (distCoffee < 12) return 'coffee';
-    const isDesk = DESKS.some((d) => Math.hypot(x - d.x, y - d.y) < 12);
+    if (distPrinter < 16) return 'printer';
+    if (distCoffee < 16) return 'coffee';
+    const isDesk = DESKS.some((d) => Math.hypot(x - d.x, y - d.y) < 18);
     if (isDesk) return 'desk';
     return null;
   }, []);
@@ -351,8 +444,8 @@ export function OfficeCanvas() {
   const getDisplayPhase = useCallback((personaPosition: [number, number], phase: AgentPhase): AgentPhase => {
     if (phase !== 'walk') return phase;
     const [x, y] = personaPosition;
-    const nearPrinter = Math.hypot(x - PRINTER.x, y - PRINTER.y) < 30;
-    const nearCoffee = Math.hypot(x - COFFEE.x, y - COFFEE.y) < 30;
+    const nearPrinter = Math.hypot(x - PRINTER.x, y - PRINTER.y) < 36;
+    const nearCoffee = Math.hypot(x - COFFEE.x, y - COFFEE.y) < 36;
     if (nearPrinter || nearCoffee) return 'stand';
     return phase;
   }, []);
@@ -404,7 +497,7 @@ export function OfficeCanvas() {
 
       const chatStyle = new TextStyle({
         fill: 0xe6edf6,
-        fontSize: 11,
+        fontSize: 10,
         fontFamily: 'IBM Plex Sans, system-ui, sans-serif',
       });
       const hudStyle = new TextStyle({
@@ -504,6 +597,17 @@ export function OfficeCanvas() {
           pendingRepliesRef.current = remaining;
         }
 
+        if (now >= ambientChatAtRef.current && agentsMap.size > 0) {
+          const all = [...agentsMap.entries()];
+          const [id, visual] = all[Math.floor(Math.random() * all.length)];
+          const persona = personasByIdRef.current.get(id);
+          if (persona) {
+            const line = AMBIENT_CHAT[Math.floor(Math.random() * AMBIENT_CHAT.length)];
+            renderBubble(visual, `${persona.name}: ${line}`, now, 1700);
+          }
+          ambientChatAtRef.current = now + AMBIENT_CHAT_INTERVAL_MS + Math.random() * 1100;
+        }
+
         agentsMap.forEach((visual, id) => {
           if (visual.snapToPosition) {
             visual.agent.x = visual.targetX;
@@ -511,8 +615,8 @@ export function OfficeCanvas() {
           } else {
             const dx = visual.targetX - visual.agent.x;
             const dy = visual.targetY - visual.agent.y;
-            visual.agent.x += dx * 0.24;
-            visual.agent.y += dy * 0.24;
+            visual.agent.x += dx * 0.28;
+            visual.agent.y += dy * 0.28;
           }
           visual.agent.zIndex = visual.agent.y;
 
