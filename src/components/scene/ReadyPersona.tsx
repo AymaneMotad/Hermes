@@ -46,8 +46,12 @@ function ReadyPersonaInner({ data, isSelected, onClick }: ReadyPersonaProps) {
   const clone = useMemo(() => scene.clone(true), [scene]);
 
   const groupRef = useRef<THREE.Group>(null);
+  const scenePosition = useMemo<[number, number, number]>(
+    () => [data.position[0], 0, data.position[1]],
+    [data.position]
+  );
   const positionRef = useRef(
-    new THREE.Vector3(data.position[0], data.position[1], data.position[2])
+    new THREE.Vector3(data.position[0], 0, data.position[1])
   );
   const waypointRef = useRef<[number, number] | null>(null);
   const phaseRef = useRef<Phase>('at_desk');
@@ -62,7 +66,7 @@ function ReadyPersonaInner({ data, isSelected, onClick }: ReadyPersonaProps) {
     () =>
       WAYPOINTS.findIndex(
         ([x, z]) =>
-          Math.abs(x - data.position[0]) < 0.3 && Math.abs(z - data.position[2]) < 0.3
+          Math.abs(x - data.position[0]) < 0.3 && Math.abs(z - data.position[1]) < 0.3
       ),
     [data.position]
   );
@@ -92,7 +96,7 @@ function ReadyPersonaInner({ data, isSelected, onClick }: ReadyPersonaProps) {
               })();
       }
       pos.lerp(
-        new THREE.Vector3(storePosition[0], storePosition[1], storePosition[2]),
+        new THREE.Vector3(storePosition[0], 0, storePosition[1]),
         0.06
       );
       walkBobRef.current = 0;
@@ -157,7 +161,7 @@ function ReadyPersonaInner({ data, isSelected, onClick }: ReadyPersonaProps) {
   return (
     <group
       ref={groupRef}
-      position={[data.position[0], data.position[1], data.position[2]]}
+      position={scenePosition}
       onClick={(e) => (e.stopPropagation(), onClick())}
       onPointerOver={() => (document.body.style.cursor = 'pointer')}
       onPointerOut={() => (document.body.style.cursor = 'default')}

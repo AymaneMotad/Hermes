@@ -44,12 +44,14 @@ export interface AgentRefs {
   head: THREE.Group;
 }
 
+type MiniSimPhase = 'at_desk' | 'walking' | 'chatting';
+
 type AgentSimState = {
   position: THREE.Vector3;
   velocity: THREE.Vector3;
   currentSpeed: number;
   waypoint: [number, number] | null;
-  phase: AgentPhase;
+  phase: MiniSimPhase;
   phaseEndTime: number;
   idleTime: number;
   walkTime: number;
@@ -60,8 +62,17 @@ type AgentSimState = {
   headRotationY: number;
 };
 
-const defaultState = (position: [number, number, number]): AgentSimState => ({
-  position: new THREE.Vector3(position[0], position[1], position[2]),
+const toSceneVector = (position: [number, number]): THREE.Vector3 =>
+  new THREE.Vector3(position[0], 0, position[1]);
+
+const toStorePhase = (phase: MiniSimPhase): AgentPhase => {
+  if (phase === 'walking') return 'walk';
+  if (phase === 'chatting') return 'stand';
+  return 'typing';
+};
+
+const defaultState = (position: [number, number]): AgentSimState => ({
+  position: toSceneVector(position),
   velocity: new THREE.Vector3(0, 0, 0),
   currentSpeed: 0,
   waypoint: null,
@@ -137,10 +148,10 @@ export function MiniSimulationProvider({
         stateMap.current.set(p.id, sim);
       }
       const deskIndex = WAYPOINTS.findIndex(
-        ([x, z]) => Math.abs(x - p.position[0]) < 0.2 && Math.abs(z - p.position[2]) < 0.2
+        ([x, z]) => Math.abs(x - p.position[0]) < 0.2 && Math.abs(z - p.position[1]) < 0.2
       );
       const homeDesk = WAYPOINTS[deskIndex >= 0 ? deskIndex : 0];
-      const storePos = new THREE.Vector3(p.position[0], p.position[1], p.position[2]);
+      const storePos = toSceneVector(p.position);
       const isAlert = p.status === 'alert';
 
       if (sim.phase === 'at_desk') {
@@ -250,7 +261,7 @@ export function MiniSimulationProvider({
 
       if (refs.group.userData?.lastPhase !== sim.phase) {
         refs.group.userData.lastPhase = sim.phase;
-        setAgentPhase(p.id, sim.phase);
+        setAgentPhase(p.id, toStorePhase(sim.phase));
       }
 
       const bob = Math.sin(sim.walkTime * BOB_FREQ) * BOB_AMPLITUDE;

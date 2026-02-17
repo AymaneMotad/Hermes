@@ -187,11 +187,12 @@ export function MiniPersona({ data, isSelected, onClick }: MiniPersonaProps) {
       : colors.body;
   const headColor = isSelected ? lumon.white : colors.head;
   const isWorking = data.status === 'working';
+  const scenePosition: [number, number, number] = [data.position[0], 0, data.position[1]];
 
   return (
     <group
       ref={groupRef}
-      position={[data.position[0], data.position[1], data.position[2]]}
+      position={scenePosition}
       onClick={(e) => (e.stopPropagation(), onClick())}
       onPointerOver={() => (document.body.style.cursor = 'pointer')}
       onPointerOut={() => (document.body.style.cursor = 'default')}
