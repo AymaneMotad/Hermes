@@ -1,7 +1,5 @@
 'use client';
 
-import type { ThreeElements } from '@react-three/fiber';
-
 /**
  * Lumon / Severance: 1 cold directional (5600K), 1 soft fill.
  * No warm light. Subtle shadow softness. Slight green tint in ambient.
@@ -9,8 +7,30 @@ import type { ThreeElements } from '@react-three/fiber';
 const COLD_5600K = '#F2F6FA';
 const FILL_SOFT = '#E2ECE8';
 
-type AmbientLightProps = ThreeElements['ambientLight'];
-type DirectionalLightProps = ThreeElements['directionalLight'];
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      ambientLight: Record<string, unknown>;
+      directionalLight: Record<string, unknown>;
+    }
+  }
+}
+
+type AmbientLightProps = {
+  intensity: number;
+  color: string;
+};
+
+type DirectionalLightProps = {
+  position: [number, number, number];
+  intensity: number;
+  color: string;
+  castShadow?: boolean;
+  'shadow-mapSize-width'?: number;
+  'shadow-mapSize-height'?: number;
+  'shadow-bias'?: number;
+  'shadow-radius'?: number;
+};
 
 const ambientProps: AmbientLightProps = { intensity: 0.6, color: FILL_SOFT };
 const keyLightProps: DirectionalLightProps = {
