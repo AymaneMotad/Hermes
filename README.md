@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hermes Q — Persona Operations Platform
+
+A cinematic, realistic 3D web application inspired by the aesthetic of *Severance*. The platform visualizes AI personas (agents) as digital office workers inside a minimalist corporate environment.
+
+## Tech Stack
+
+- **Next.js** (App Router)
+- **React Three Fiber** + **Three.js** + **@react-three/drei**
+- **Zustand** (state)
+- **GSAP** (UI transitions)
+- **WebSockets** (optional, for live persona state)
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The 3D office loads with four personas. Click a persona in the sidebar or in the scene to focus the camera and open the task panel.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Node Version
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Next.js 16 requires **Node.js >= 20.9.0**. If your current Node is older, use [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) and run `nvm use 20` or `fnm use 20` before `npm run build`.
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+- **3D office**: White walls, matte floor, soft shadows, fog, overhead and window lighting, glass meeting room, desks and chairs.
+- **Personas**: Four AI operators (OpenClaw, Sentinel, Scribe, Nexus) with three states:
+  - **Idle** — standing, subtle breathing, head movement.
+  - **Working** — typing pose, arms at desk.
+  - **Alert** — red pulse and status ring, desk glow.
+- **Real-time state**: Without a WebSocket URL, the app runs a **mock** that cycles persona statuses every ~8s. To drive state from your backend, use the WebSocket hook (see below).
+- **UI**: Sidebar (persona list + status), task detail panel (status, role, current task, notice), minimal typography, neutral palette.
+- **Camera**: Isometric-style view, smooth pan, click-to-focus on persona, subtle idle drift.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## WebSocket Integration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Persona state can be driven by a WebSocket server. Message format:
 
-## Deploy on Vercel
+```json
+{
+  "type": "persona_state",
+  "id": "openclaw",
+  "status": "working",
+  "currentTask": "Research in progress",
+  "errorMessage": null
+}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `id`: persona id (`openclaw`, `sentinel`, `scribe`, `nexus`).
+- `status`: `"idle"` | `"working"` | `"alert"`.
+- `currentTask`, `errorMessage`: optional.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+In your app, pass the WebSocket URL to the hook:
+
+```tsx
+usePersonaWebSocket('ws://localhost:4000');
+```
+
+Without a URL, the mock runs and no connection is made.
+
+## Project Structure
+
+```
+src/
+├── app/              # Next.js App Router (layout, page)
+├── components/
+│   ├── scene/        # R3F: Office, Lighting, Persona, CameraRig, Scene
+│   └── ui/           # Sidebar, TaskPanel, StatusBadge
+├── store/            # Zustand (personas, selection)
+├── hooks/            # usePersonaWebSocket
+└── types/            # Persona, PersonaStatus, etc.
+```
+
+## Extending
+
+The layout is built so you can:
+
+- Add more rooms and desks (see `Office.tsx` and `DESKS`).
+- Add more personas in `usePersonaStore` and give them positions/deskIds.
+- Plug in real GLB models and animations (e.g. Mixamo) in `Persona.tsx` by loading a `<useGLTF>` and switching clips by `status`.
+- Add task pipelines, multi-floor buildings, or analytics overlays by extending the store and scene.
+
+## License
+
+MIT
