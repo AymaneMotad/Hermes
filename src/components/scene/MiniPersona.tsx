@@ -165,7 +165,8 @@ export function MiniPersona({ data, isSelected, onClick }: MiniPersonaProps) {
   const headRef = useRef<THREE.Group>(null!);
   const { registerRefs, unregisterRefs } = useMiniSimulation();
   const phase = usePersonaStore((s) => s.agentPhases[data.id]);
-  const showWaveform = phase === 'chatting';
+  // Store phase model does not include "chatting"; show comms waveform during active desk work.
+  const showWaveform = phase === 'typing' && data.status === 'working';
 
   useLayoutEffect(() => {
     if (!groupRef.current || !bodyRef.current || !headRef.current) return;
