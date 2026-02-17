@@ -32,21 +32,27 @@ export function PersonaCard({ persona }: { persona: Persona }) {
           <p className="text-xs capitalize text-[#8ea2ba]">
             {persona.title ?? persona.role}
           </p>
+          <p className="mt-1 text-[11px] text-[#7f97b2]">
+            node key: <span className="text-[#b8d0e8]">oc_{persona.id}</span>
+          </p>
         </div>
         <StatusBadge status={persona.status} pulse={persona.status !== 'idle'} />
       </div>
       <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
         <div>
-          <dt className="text-[#8ea2ba]">Tasks today</dt>
+          <dt className="text-[#8ea2ba]">Capacity seed</dt>
           <dd className="font-medium text-[#dbe6f2]">{persona.tasksToday ?? '—'}</dd>
         </div>
         <div>
-          <dt className="text-[#8ea2ba]">Last active</dt>
+          <dt className="text-[#8ea2ba]">Heartbeat</dt>
           <dd className="font-medium text-[#dbe6f2]">{persona.lastActive ?? '—'}</dd>
         </div>
       </dl>
+      <p className="mt-2 text-[11px] text-[#8ea2ba]">
+        behavior lane: <span className="capitalize text-[#cddceb]">{persona.behavior ?? 'focused'}</span>
+      </p>
       {persona.currentTask && persona.status !== 'idle' && (
-        <p className="mt-2 truncate text-[11px] text-[#9db0c8]">{persona.currentTask}</p>
+        <p className="mt-1 truncate text-[11px] text-[#9db0c8]">runtime cue: {persona.currentTask}</p>
       )}
     </button>
   );

@@ -1,11 +1,11 @@
 'use client';
 
 const FEATURES = [
-  { id: 'statistics', label: 'Statistics', icon: '▤' },
-  { id: 'analytics', label: 'Analytics', icon: '◫' },
-  { id: 'billing', label: 'Billing', icon: '◈' },
-  { id: 'settings', label: 'Settings', icon: '⚙' },
-  { id: 'activity', label: 'Activity logs', icon: '▦' },
+  { id: 'swarm-map', label: 'Swarm topology', icon: '◬' },
+  { id: 'policy-lens', label: 'Policy lens', icon: '◎' },
+  { id: 'work-graph', label: 'Work graph', icon: '▤' },
+  { id: 'trust-signals', label: 'Trust signals', icon: '◈' },
+  { id: 'escalation', label: 'Escalation contracts', icon: '▦' },
 ] as const;
 
 function FeatureItem({ label, icon }: { label: string; icon: string }) {
@@ -26,6 +26,9 @@ export function FeaturesPanel() {
       <header className="shrink-0 border-b border-[#2c3a4c] px-4 py-3">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8ea2ba]">
           HERMES Q
+        </p>
+        <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[#6f869f]">
+          OpenClaw-ready UI shell
         </p>
       </header>
 

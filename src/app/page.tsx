@@ -5,6 +5,8 @@ import { usePersonaStore } from '@/store/usePersonaStore';
 import { FeaturesPanel } from '@/components/dashboard/FeaturesPanel';
 import { PersonaCard } from '@/components/dashboard/PersonaCard';
 import { OfficeCanvas } from '@/components/office/OfficeCanvas';
+import { OpenClawBlueprintPanel } from '@/components/openclaw/OpenClawBlueprintPanel';
+import { OpenClawHandoffPanel } from '@/components/openclaw/OpenClawHandoffPanel';
 import { VIEW_WIDTH, VIEW_HEIGHT } from '@/lib/officeLayout';
 
 const PHASE_LABELS: Record<string, string> = {
@@ -38,6 +40,7 @@ export default function Home() {
   const personas = usePersonaStore((s) => s.personas);
   const activeAgents = personas.filter((p) => p.status === 'working').length;
   const alertAgents = personas.filter((p) => p.status === 'alert').length;
+  const throughput = personas.reduce((acc, p) => acc + (p.tasksToday ?? 0), 0);
 
   return (
     <main
@@ -59,13 +62,13 @@ export default function Home() {
               className="text-[10px] font-medium uppercase tracking-[0.2em]"
               style={{ color: '#7f93aa' }}
             >
-              Enterprise Operations
+              OpenClaw Control Plane
             </p>
             <h1 className="text-lg font-semibold" style={{ color: '#e8eef6' }}>
-              Agent Orchestration Console
+              Agent Orchestration Experience
             </h1>
             <p className="text-sm" style={{ color: '#8ea2ba' }}>
-              Live simulator for parallel digital workers
+              Client-side blueprint for future VPS-backed OpenClaw runtime
             </p>
           </div>
           <div className="flex items-center gap-2 text-[11px] font-medium">
@@ -74,6 +77,9 @@ export default function Home() {
             </span>
             <span className="rounded border border-[#2f4158] bg-[#1a2534] px-2.5 py-1 text-[#f0c7c7]">
               Alerts {alertAgents}
+            </span>
+            <span className="rounded border border-[#2f4158] bg-[#1a2534] px-2.5 py-1 text-[#a8e0cc]">
+              Throughput {throughput}
             </span>
             <span className={`rounded border px-2.5 py-1 ${connected ? 'border-[#2d5a4a] bg-[#17372f] text-[#a9e7ce]' : 'border-[#5a2d2d] bg-[#381d1d] text-[#f1b0b0]'}`}>
               {connected ? 'Stream Online' : 'Stream Offline'}
@@ -87,7 +93,7 @@ export default function Home() {
               className="text-xs font-medium uppercase tracking-wider"
               style={{ color: '#7f93aa' }}
             >
-              Agent Fleet
+              Capability Nodes
             </h2>
             <SelectedPersonaLabel />
           </div>
@@ -102,7 +108,7 @@ export default function Home() {
               className="mb-2 text-xs font-medium uppercase tracking-wider"
               style={{ color: '#7f93aa' }}
             >
-              Live Floor Simulator
+              Behavior Sandbox
             </h2>
             <div
               className="inline-block overflow-hidden rounded border-2 shadow-md"
@@ -127,7 +133,7 @@ export default function Home() {
                   className="text-[10px] uppercase tracking-wider"
                   style={{ color: '#8ea2ba' }}
                 >
-                  Realtime agent simulation
+                  Client simulation feed (design proxy)
                 </span>
               </div>
               <div style={{ width: VIEW_WIDTH, height: VIEW_HEIGHT }}>
@@ -135,6 +141,11 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          <div className="mt-5">
+            <OpenClawBlueprintPanel personas={personas} />
+          </div>
+          <OpenClawHandoffPanel personas={personas} />
         </div>
       </div>
     </main>
