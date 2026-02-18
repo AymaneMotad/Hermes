@@ -5,8 +5,6 @@ import { usePersonaStore } from '@/store/usePersonaStore';
 import { FeaturesPanel } from '@/components/dashboard/FeaturesPanel';
 import { PersonaCard } from '@/components/dashboard/PersonaCard';
 import { OfficeCanvas } from '@/components/office/OfficeCanvas';
-import { OpenClawBlueprintPanel } from '@/components/openclaw/OpenClawBlueprintPanel';
-import { OpenClawHandoffPanel } from '@/components/openclaw/OpenClawHandoffPanel';
 import { VIEW_WIDTH, VIEW_HEIGHT } from '@/lib/officeLayout';
 
 const PHASE_LABELS: Record<string, string> = {
@@ -88,16 +86,16 @@ export default function Home() {
         </header>
 
         <div className="flex-1 p-6" style={{ backgroundColor: '#0f1722' }}>
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h2
               className="text-xs font-medium uppercase tracking-wider"
               style={{ color: '#7f93aa' }}
             >
-              Capability Nodes
+              Agents
             </h2>
             <SelectedPersonaLabel />
           </div>
-          <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mb-4 flex flex-wrap gap-2">
             {personas.map((p) => (
               <PersonaCard key={p.id} persona={p} />
             ))}
@@ -108,7 +106,7 @@ export default function Home() {
               className="mb-2 text-xs font-medium uppercase tracking-wider"
               style={{ color: '#7f93aa' }}
             >
-              Behavior Sandbox
+              Live Floor
             </h2>
             <div
               className="inline-block overflow-hidden rounded border-2 shadow-md"
@@ -133,7 +131,7 @@ export default function Home() {
                   className="text-[10px] uppercase tracking-wider"
                   style={{ color: '#8ea2ba' }}
                 >
-                  Client simulation feed (design proxy)
+                  Realtime
                 </span>
               </div>
               <div style={{ width: VIEW_WIDTH, height: VIEW_HEIGHT }}>
@@ -141,11 +139,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          <div className="mt-5">
-            <OpenClawBlueprintPanel personas={personas} />
-          </div>
-          <OpenClawHandoffPanel personas={personas} />
         </div>
       </div>
     </main>
