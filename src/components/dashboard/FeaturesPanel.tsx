@@ -12,9 +12,9 @@ function FeatureItem({ label, icon }: { label: string; icon: string }) {
   return (
     <button
       type="button"
-      className="group flex w-full items-center gap-3 rounded-xl border border-[#d9e2ee] bg-[#ffffff] px-3 py-2.5 text-left text-sm text-[#334155] transition-all hover:-translate-y-[1px] hover:border-[#bfd0e5] hover:shadow-[0_6px_16px_rgba(15,23,42,0.07)]"
+      className="group flex w-full items-center gap-3 rounded-xl border border-[#273549] bg-[linear-gradient(180deg,#121e2f_0%,#0d1725_100%)] px-3 py-2.5 text-left text-sm text-[#d7e3f4] transition-all hover:-translate-y-px hover:border-[#3a5477] hover:shadow-[0_10px_24px_rgba(6,14,28,0.45)]"
     >
-      <span className="text-[#64748b] transition-colors group-hover:text-[#3b82f6]">{icon}</span>
+      <span className="text-[#8fa8c5] transition-colors group-hover:text-[#60a5fa]">{icon}</span>
       {label}
     </button>
   );
@@ -22,18 +22,18 @@ function FeatureItem({ label, icon }: { label: string; icon: string }) {
 
 export function FeaturesPanel() {
   return (
-    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-[#d6dde8] bg-[#f7f9fc]">
-      <header className="shrink-0 border-b border-[#d6dde8] bg-[linear-gradient(180deg,#ffffff_0%,#f5f8fc_100%)] px-4 py-4">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#526173]">
+    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-[#1d2a3d] bg-[radial-gradient(120%_120%_at_0%_0%,#1b2b41_0%,#111a2a_45%,#0b1220_100%)]">
+      <header className="shrink-0 border-b border-[#23344a] px-4 py-4">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#9ab0cc]">
           HERMES Q
         </p>
-        <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[#7c8da1]">
+        <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[#6f87a5]">
           OpenClaw-ready UI shell
         </p>
       </header>
 
       <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
-        <h2 className="mb-3 text-[11px] font-medium uppercase tracking-wider text-[#6b7b8f]">
+        <h2 className="mb-3 text-[11px] font-medium uppercase tracking-wider text-[#7f95b2]">
           Features
         </h2>
         <div className="flex flex-col gap-2">
@@ -43,8 +43,8 @@ export function FeaturesPanel() {
         </div>
       </nav>
 
-      <footer className="shrink-0 border-t border-[#d6dde8] px-4 py-2">
-        <p className="text-[10px] text-[#7b8da3]">v1.0 enterprise preview</p>
+      <footer className="shrink-0 border-t border-[#23344a] px-4 py-2">
+        <p className="text-[10px] text-[#7b90ad]">v1.0 enterprise preview</p>
       </footer>
     </aside>
   );
