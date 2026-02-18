@@ -9,10 +9,10 @@ import type { PersonaBehavior } from '@/types/persona';
 
 /** Role-based accent stripe (low saturation). Torso = base, sleeve darker, accent = stripe. */
 export const ROLE_ACCENT: Record<PersonaBehavior, string> = {
-  coordinator: '#1a2838', // deep ink
-  focused: '#3d5a6a', // muted blue
-  social: '#5a6b5c', // soft sage
-  wanderer: '#6b5a5a', // dusty rose muted
+  coordinator: '#7b91b2', // soft slate
+  focused: '#8ca4bf', // muted blue
+  social: '#9ab09c', // soft sage
+  wanderer: '#b39a9a', // dusty rose muted
 };
 
 export const lumon = {
@@ -28,21 +28,21 @@ export const lumon = {
   /** Refiner green - Severance MDR / macrodata glow */
   refinerGreen: '#9BB89F',
   /** Stark / ink */
-  ink: '#25282A',
-  inkMuted: '#54585a',
+  ink: '#6b7280',
+  inkMuted: '#8b93a0',
   /** Agent color coding (toned down) */
-  alexBlazer: '#1a3648',
+  alexBlazer: '#8fa9c3',
   alexShirt: '#E8EAEC',
-  samCardigan: '#424e4f',
+  samCardigan: '#9aa9ab',
   samShirt: '#96B4BA',
   jordanBlazer: '#B0A090',
   jordanBlouse: '#E2DED6',
-  caseyBlazer: '#4e5c68',
+  caseyBlazer: '#9eacb8',
   caseyShirt: '#C8D0D4',
   /** Status */
-  idle: '#6a7278',
-  working: '#3d7a94',
-  alert: '#8e4a4a',
+  idle: '#9aa2ab',
+  working: '#79a7b8',
+  alert: '#bf8f97',
 } as const;
 
 /** @deprecated use lumon */

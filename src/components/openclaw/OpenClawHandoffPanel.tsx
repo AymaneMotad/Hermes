@@ -22,41 +22,41 @@ const CONTRACTS = [
 
 export function OpenClawHandoffPanel({ personas }: { personas: Persona[] }) {
   return (
-    <section className="mt-5 rounded border border-[#2c3a4c] bg-[#121c2a] p-4 shadow-[inset_0_0_0_1px_#1d2a3b]">
+    <section className="mt-5 rounded border border-[#dbe3ee] bg-[#ffffff] p-4 shadow-[inset_0_0_0_1px_#eef2f7]">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.18em] text-[#7f93aa]">Developer Handoff Surface</p>
-          <h3 className="text-sm font-semibold text-[#e6eef8]">VPS + Core Mapping Draft (Client Mirror)</h3>
+          <p className="text-[10px] uppercase tracking-[0.18em] text-[#7f8b9b]">Developer Handoff Surface</p>
+          <h3 className="text-sm font-semibold text-[#465162]">VPS + Core Mapping Draft (Client Mirror)</h3>
         </div>
-        <span className="rounded border border-[#355272] bg-[#11263d] px-2.5 py-1 text-[11px] text-[#9ec6e8]">
+        <span className="rounded border border-[#d7e2ef] bg-[#f4f8fd] px-2.5 py-1 text-[11px] text-[#7893b7]">
           non-functional design scaffolding
         </span>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
         {CONTRACTS.map((item) => (
-          <article key={item.title} className="rounded border border-[#2e4258] bg-[#172435] p-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[#a7c4df]">{item.title}</p>
-            <p className="mt-1 text-xs text-[#bed0e2]">{item.desc}</p>
-            <code className="mt-2 inline-block rounded border border-[#3a5572] bg-[#102033] px-2 py-1 text-[11px] text-[#c7dbef]">
+          <article key={item.title} className="rounded border border-[#d8e2ee] bg-[#f9fbff] p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#758aa7]">{item.title}</p>
+            <p className="mt-1 text-xs text-[#7f8fa3]">{item.desc}</p>
+            <code className="mt-2 inline-block rounded border border-[#d6e0ed] bg-[#f3f7fd] px-2 py-1 text-[11px] text-[#7893b7]">
               {item.draft}
             </code>
           </article>
         ))}
       </div>
 
-      <div className="mt-4 rounded border border-[#2e4258] bg-[#162334] p-3">
-        <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#a7c4df]">
+      <div className="mt-4 rounded border border-[#d8e2ee] bg-[#f9fbff] p-3">
+        <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#758aa7]">
           Planned Node Identity Map
         </h4>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {personas.map((p) => (
-            <div key={p.id} className="rounded border border-[#355272] bg-[#11263d] p-2">
-              <p className="text-xs font-semibold text-[#e4eef8]">{p.name}</p>
-              <p className="text-[11px] text-[#8fb0ce]">client id: {p.id}</p>
-              <p className="text-[11px] text-[#8fb0ce]">node key: oc_{p.id}</p>
-              <p className="mt-1 text-[11px] text-[#b9cde1]">
-                lane: <span className="capitalize text-[#d8e7f5]">{p.behavior ?? 'focused'}</span>
+            <div key={p.id} className="rounded border border-[#d7e2ef] bg-[#f4f8fd] p-2">
+              <p className="text-xs font-semibold text-[#4c5768]">{p.name}</p>
+              <p className="text-[11px] text-[#8498b2]">client id: {p.id}</p>
+              <p className="text-[11px] text-[#8498b2]">node key: oc_{p.id}</p>
+              <p className="mt-1 text-[11px] text-[#91a1b6]">
+                lane: <span className="capitalize text-[#5f6d81]">{p.behavior ?? 'focused'}</span>
               </p>
             </div>
           ))}

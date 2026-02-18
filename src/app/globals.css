@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f1722;
-  --foreground: #e8eef6;
+  --background: #f7f8fb;
+  --foreground: #556174;
   --font-sans: var(--font-ibm), ui-sans-serif, system-ui, sans-serif;
   --severance-carpet: #b8c4bc;
   --severance-wall: #f2f0eb;

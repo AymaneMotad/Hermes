@@ -21,7 +21,7 @@ function FeatureItem({
   return (
     <button
       type="button"
-      className="flex w-full items-center gap-3 rounded-lg border border-[#c5d1c9] bg-[#f2f0eb] px-3 py-2.5 text-left text-sm text-[#2a2d2e] transition-colors hover:border-[#7a9a85] hover:bg-[#ebe9e4]"
+      className="flex w-full items-center gap-3 rounded-lg border border-[#c5d1c9] bg-[#f2f0eb] px-3 py-2.5 text-left text-sm text-[#5a616a] transition-colors hover:border-[#7a9a85] hover:bg-[#ebe9e4]"
     >
       <span className="text-[#5c6164]">{icon === 'Chart' ? '▤' : icon === 'Workflow' ? '⟳' : icon === 'Gear' ? '⚙' : '▦'}</span>
       {label}
@@ -37,7 +37,7 @@ function SelectedPersonaLabel() {
   return (
     <div className="flex items-center gap-2 rounded border border-[#c5d1c9] bg-[#e8ebe6] px-2 py-1.5">
       <StatusBadge status={selected.status} />
-      <span className="text-xs text-[#2a2d2e]">{selected.name}</span>
+      <span className="text-xs text-[#5a616a]">{selected.name}</span>
     </div>
   );
 }
@@ -48,7 +48,7 @@ export function DashboardPanel() {
   return (
     <aside className="flex h-full w-[320px] shrink-0 flex-col border-r border-[#c5d1c9] bg-[#f2f0eb]">
       <header className="shrink-0 border-b border-[#c5d1c9] px-4 py-3">
-        <h1 className="text-base font-semibold text-[#2a2d2e]">Persona Operations</h1>
+        <h1 className="text-base font-semibold text-[#5a616a]">Persona Operations</h1>
         <p className="text-xs text-[#5c6164]">Office floor</p>
       </header>
 

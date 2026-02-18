@@ -195,7 +195,7 @@ function ReadyPersonaInner({ data, isSelected, onClick }: ReadyPersonaProps) {
             padding: '4px 8px',
             borderRadius: 6,
             border: `1px solid ${severance.carpetLight}`,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+            boxShadow: '0 1px 3px rgba(148,163,184,0.24)',
           }}
         >
           {chatMessage}

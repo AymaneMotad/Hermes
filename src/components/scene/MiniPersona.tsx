@@ -25,7 +25,7 @@ function agentColors(
       return {
         body: lumon.alexBlazer,
         head: lumon.alexShirt,
-        sleeve: '#152a3a',
+        sleeve: '#9bb2c8',
         accent,
       };
     case 'Sam':
@@ -183,7 +183,7 @@ export function MiniPersona({ data, isSelected, onClick }: MiniPersonaProps) {
   const bodyColor = isSelected
     ? lumon.fluorescentBlue
     : data.status === 'alert'
-      ? '#7a6a6a'
+      ? '#c3a3aa'
       : colors.body;
   const headColor = isSelected ? lumon.white : colors.head;
   const isWorking = data.status === 'working';
