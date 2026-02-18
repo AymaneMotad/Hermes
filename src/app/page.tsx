@@ -24,10 +24,10 @@ function SelectedPersonaLabel() {
   const phase = agentPhases[selected.id];
   const phaseLabel = phase ? PHASE_LABELS[phase] ?? phase : null;
   return (
-    <span className="text-xs" style={{ color: '#8ea2ba' }}>
-      Selected: <span className="font-medium" style={{ color: '#e8eef6' }}>{selected.name}</span>
+    <span className="text-xs" style={{ color: '#6b7b8f' }}>
+      Selected: <span className="font-medium" style={{ color: '#1f2937' }}>{selected.name}</span>
       {phaseLabel && (
-        <> — <span style={{ color: '#8ab2da' }}>{phaseLabel}</span></>
+        <> — <span style={{ color: '#3b82f6' }}>{phaseLabel}</span></>
       )}
     </span>
   );
@@ -43,68 +43,70 @@ export default function Home() {
   return (
     <main
       className="flex h-screen w-screen overflow-hidden"
-      style={{ backgroundColor: '#0f1722' }}
+      style={{ backgroundColor: '#f3f6fb' }}
     >
       <FeaturesPanel />
       <div className="flex min-w-0 flex-1 flex-col overflow-auto">
         <header
           className="flex shrink-0 items-center justify-between border-b px-6 py-4"
           style={{
-            borderColor: '#2c3a4c',
-            backgroundColor: '#141d2a',
-            boxShadow: '0 1px 0 #1f2b3a',
+            borderColor: '#d9e1ec',
+            backgroundColor: '#ffffff',
+            boxShadow: '0 6px 20px rgba(15, 23, 42, 0.05)',
           }}
         >
           <div>
             <p
               className="text-[10px] font-medium uppercase tracking-[0.2em]"
-              style={{ color: '#7f93aa' }}
+              style={{ color: '#64748b' }}
             >
               OpenClaw Control Plane
             </p>
-            <h1 className="text-lg font-semibold" style={{ color: '#e8eef6' }}>
+            <h1 className="text-lg font-semibold" style={{ color: '#0f172a' }}>
               Agent Orchestration Experience
             </h1>
-            <p className="text-sm" style={{ color: '#8ea2ba' }}>
+            <p className="text-sm" style={{ color: '#64748b' }}>
               Client-side blueprint for future VPS-backed OpenClaw runtime
             </p>
           </div>
           <div className="flex items-center gap-2 text-[11px] font-medium">
-            <span className="rounded border border-[#2f4158] bg-[#1a2534] px-2.5 py-1 text-[#c9d7e8]">
+            <span className="rounded-full border border-[#dbe4ef] bg-[#f8fbff] px-3 py-1 text-[#334155]">
               Active {activeAgents}/{personas.length}
             </span>
-            <span className="rounded border border-[#2f4158] bg-[#1a2534] px-2.5 py-1 text-[#f0c7c7]">
+            <span className="rounded-full border border-[#f2d8d8] bg-[#fff7f7] px-3 py-1 text-[#b45353]">
               Alerts {alertAgents}
             </span>
-            <span className="rounded border border-[#2f4158] bg-[#1a2534] px-2.5 py-1 text-[#a8e0cc]">
+            <span className="rounded-full border border-[#d6ece2] bg-[#f4fbf8] px-3 py-1 text-[#2f7f63]">
               Throughput {throughput}
             </span>
-            <span className={`rounded border px-2.5 py-1 ${connected ? 'border-[#2d5a4a] bg-[#17372f] text-[#a9e7ce]' : 'border-[#5a2d2d] bg-[#381d1d] text-[#f1b0b0]'}`}>
+            <span className={`rounded-full border px-3 py-1 ${connected ? 'border-[#cae8dc] bg-[#effaf4] text-[#2f7f63]' : 'border-[#f2d8d8] bg-[#fff7f7] text-[#b45353]'}`}>
               {connected ? 'Stream Online' : 'Stream Offline'}
             </span>
           </div>
         </header>
 
-        <div className="flex-1 p-6" style={{ backgroundColor: '#0f1722' }}>
+        <div className="flex-1 p-6" style={{ backgroundColor: '#f3f6fb' }}>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h2
               className="text-xs font-medium uppercase tracking-wider"
-              style={{ color: '#7f93aa' }}
+              style={{ color: '#6b7b8f' }}
             >
               Agents
             </h2>
             <SelectedPersonaLabel />
           </div>
-          <div className="mb-4 flex flex-wrap gap-2">
-            {personas.map((p) => (
-              <PersonaCard key={p.id} persona={p} />
-            ))}
+          <div className="mb-4 rounded-2xl border border-[#dbe3ee] bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
+            <div className="flex flex-wrap gap-2">
+              {personas.map((p) => (
+                <PersonaCard key={p.id} persona={p} />
+              ))}
+            </div>
           </div>
 
           <div>
             <h2
               className="mb-2 text-xs font-medium uppercase tracking-wider"
-              style={{ color: '#7f93aa' }}
+              style={{ color: '#6b7b8f' }}
             >
               Live Floor
             </h2>

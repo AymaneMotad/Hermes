@@ -12,9 +12,9 @@ function FeatureItem({ label, icon }: { label: string; icon: string }) {
   return (
     <button
       type="button"
-      className="flex w-full items-center gap-3 rounded-md border border-[#d7dee8] bg-[#f8fafc] px-3 py-2.5 text-left text-sm text-[#334155] transition-colors hover:border-[#bfccdb] hover:bg-[#f1f5f9]"
+      className="group flex w-full items-center gap-3 rounded-xl border border-[#d9e2ee] bg-[#ffffff] px-3 py-2.5 text-left text-sm text-[#334155] transition-all hover:-translate-y-[1px] hover:border-[#bfd0e5] hover:shadow-[0_6px_16px_rgba(15,23,42,0.07)]"
     >
-      <span className="text-[#64748b]">{icon}</span>
+      <span className="text-[#64748b] transition-colors group-hover:text-[#3b82f6]">{icon}</span>
       {label}
     </button>
   );
@@ -22,8 +22,8 @@ function FeatureItem({ label, icon }: { label: string; icon: string }) {
 
 export function FeaturesPanel() {
   return (
-    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-[#d6dde8] bg-[#f3f5f8]">
-      <header className="shrink-0 border-b border-[#d6dde8] px-4 py-3">
+    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-[#d6dde8] bg-[#f7f9fc]">
+      <header className="shrink-0 border-b border-[#d6dde8] bg-[linear-gradient(180deg,#ffffff_0%,#f5f8fc_100%)] px-4 py-4">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-[#526173]">
           HERMES Q
         </p>

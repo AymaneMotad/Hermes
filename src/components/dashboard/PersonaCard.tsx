@@ -13,23 +13,23 @@ export function PersonaCard({ persona }: { persona: Persona }) {
     <button
       type="button"
       onClick={() => selectPersona(isSelected ? null : persona.id)}
-      className={`inline-flex shrink-0 items-center gap-2 rounded-md border px-2.5 py-1.5 text-left transition-colors ${
+      className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-left transition-all ${
         isSelected
-          ? 'border-[#416084] bg-[#1d2c40]'
-          : 'border-[#2f3f56] bg-[#182434] hover:border-[#3f5774] hover:bg-[#1f2f43]'
+          ? 'border-[#9bc2ff] bg-[#eef5ff] shadow-[0_4px_14px_rgba(59,130,246,0.12)]'
+          : 'border-[#d6dfeb] bg-[#f8fbff] hover:border-[#bfd0e5] hover:bg-[#f1f6fc]'
       }`}
     >
-      <StatusBadge status={persona.status} pulse={persona.status !== 'idle'} />
-      <span className="truncate text-sm font-medium text-[#e8eef6]">{persona.name}</span>
+      <StatusBadge status={persona.status} pulse={persona.status !== 'idle'} compact />
+      <span className="truncate text-sm font-medium text-[#1f2937]">{persona.name}</span>
       {persona.isCoordinator && (
-        <span className="shrink-0 rounded border border-[#5e7fa6] bg-[#24374f] px-1 py-0.5 text-[9px] font-medium text-[#cfe1f5]">
+        <span className="shrink-0 rounded border border-[#c6d7ee] bg-[#ebf3ff] px-1.5 py-0.5 text-[9px] font-medium text-[#3b82f6]">
           Coord
         </span>
       )}
-      <span className="shrink-0 text-[10px] capitalize text-[#8ea2ba]">
+      <span className="shrink-0 rounded bg-[#eff3f8] px-1.5 py-0.5 text-[10px] capitalize text-[#64748b]">
         {persona.role}
       </span>
-      <span className="shrink-0 text-[10px] text-[#7f97b2]">
+      <span className="shrink-0 text-[10px] font-medium text-[#475569]">
         {persona.tasksToday ?? 0}
       </span>
     </button>
