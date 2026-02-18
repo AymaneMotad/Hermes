@@ -7,22 +7,16 @@ export const VIEW_HEIGHT = 560;
 
 /** Desk positions (center of desk in px). deskId matches persona store. */
 export const DESKS = [
-  { id: 'desk-1', x: 140, y: 120 },
-  { id: 'desk-2', x: 280, y: 120 },
-  { id: 'desk-3', x: 420, y: 120 },
-  { id: 'desk-4', x: 560, y: 120 },
-  { id: 'desk-5', x: 140, y: 250 },
-  { id: 'desk-6', x: 280, y: 250 },
-  { id: 'desk-7', x: 420, y: 250 },
-  { id: 'desk-8', x: 560, y: 250 },
-  { id: 'desk-9', x: 140, y: 380 },
-  { id: 'desk-10', x: 280, y: 380 },
-  { id: 'desk-11', x: 420, y: 380 },
-  { id: 'desk-12', x: 560, y: 380 },
+  // desk-1 is reserved for the coordinator's private office.
+  { id: 'desk-1', x: 790, y: 118 },
+  { id: 'desk-2', x: 170, y: 170 },
+  { id: 'desk-3', x: 330, y: 170 },
+  { id: 'desk-4', x: 170, y: 320 },
+  { id: 'desk-5', x: 330, y: 320 },
 ] as const;
 
-export const PRINTER = { x: 820, y: 150 };
-export const COFFEE = { x: 820, y: 380 };
+export const PRINTER = { x: 780, y: 292 };
+export const COFFEE = { x: 780, y: 430 };
 
 /** Waypoints for short walks: desk -> printer or coffee -> back to desk */
 export type WaypointId =
@@ -31,13 +25,6 @@ export type WaypointId =
   | 'desk-3'
   | 'desk-4'
   | 'desk-5'
-  | 'desk-6'
-  | 'desk-7'
-  | 'desk-8'
-  | 'desk-9'
-  | 'desk-10'
-  | 'desk-11'
-  | 'desk-12'
   | 'printer'
   | 'coffee';
 

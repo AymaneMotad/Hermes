@@ -7,12 +7,13 @@ import { usePersonaStore } from '@/store/usePersonaStore';
 import { getDeskPosition, getWaypoint } from '@/lib/officeLayout';
 
 const TICK_MS = 120;
-const WALK_SPEED = 4.6;
+const WALK_SPEED = 3.1;
 const SIT_TYPING_MIN_MS = 1800;
 const SIT_TYPING_MAX_MS = 6200;
 const STAND_DURATION_MS = 500;
 const ARRIVAL_DIST = 8;
 const MAX_WALK_DURATION_MS = 16000;
+const REPORT_TO_COORDINATOR_CHANCE = 0.24;
 
 type InternalState = {
   phase: AgentPhase;
@@ -23,7 +24,7 @@ type InternalState = {
   phaseEndTime: number;
   walkStartTime: number;
   route: 'at_desk' | 'to_service' | 'at_service' | 'to_desk';
-  nextService: 'printer' | 'coffee';
+  nextService: 'printer' | 'coffee' | 'coordinator';
 };
 
 function getRandomInt(min: number, max: number) {
@@ -50,6 +51,8 @@ export function useOfficeFSM(personas: Persona[]) {
       const t = now;
 
       const currentPersonas = personasRef.current;
+      const coordinator = currentPersonas.find((p) => p.isCoordinator);
+      const coordinatorDesk = coordinator ? getDeskPosition(coordinator.deskId) : null;
       const activeIds = new Set(currentPersonas.map((p) => p.id));
       for (const p of currentPersonas) {
         if (!stateRef.current.has(p.id)) {
@@ -82,6 +85,23 @@ export function useOfficeFSM(personas: Persona[]) {
         }
         const desk = getDeskPosition(persona.deskId);
 
+        // Coordinator stays in his private office as a stable command presence.
+        if (persona.isCoordinator) {
+          state.posX = desk.x;
+          state.posY = desk.y;
+          setPosition(persona.id, [state.posX, state.posY]);
+          state.route = 'at_desk';
+          state.walkStartTime = 0;
+          if (state.phase !== 'typing') {
+            state.phase = 'typing';
+            setPhase(persona.id, 'typing');
+          }
+          if (state.phaseEndTime === 0 || t >= state.phaseEndTime) {
+            state.phaseEndTime = t + getRandomInt(SIT_TYPING_MIN_MS, SIT_TYPING_MAX_MS);
+          }
+          return;
+        }
+
         if (state.phase === 'typing') {
           if (state.phaseEndTime === 0)
             state.phaseEndTime = t + getRandomInt(SIT_TYPING_MIN_MS, SIT_TYPING_MAX_MS);
@@ -98,9 +118,17 @@ export function useOfficeFSM(personas: Persona[]) {
           if (state.route === 'to_service') {
             state.phase = 'walk';
             state.walkStartTime = t;
-            const service = getWaypoint(state.nextService);
-            state.targetX = service.x;
-            state.targetY = service.y;
+            if (coordinatorDesk && Math.random() < REPORT_TO_COORDINATOR_CHANCE) {
+              state.nextService = 'coordinator';
+            }
+            if (state.nextService === 'coordinator') {
+              state.targetX = coordinatorDesk ? coordinatorDesk.x : desk.x;
+              state.targetY = coordinatorDesk ? coordinatorDesk.y : desk.y;
+            } else {
+              const service = getWaypoint(state.nextService);
+              state.targetX = service.x;
+              state.targetY = service.y;
+            }
             setPhase(persona.id, 'walk');
             return;
           }
@@ -148,7 +176,9 @@ export function useOfficeFSM(personas: Persona[]) {
             setPosition(persona.id, [state.posX, state.posY]);
             if (state.route === 'to_service') {
               const justVisited = state.nextService;
-              state.nextService = justVisited === 'printer' ? 'coffee' : 'printer';
+              if (justVisited === 'printer') state.nextService = 'coffee';
+              else if (justVisited === 'coffee') state.nextService = 'printer';
+              else state.nextService = Math.random() < 0.5 ? 'printer' : 'coffee';
               state.phase = 'stand';
               state.phaseEndTime = t + STAND_DURATION_MS;
               state.route = 'at_service';

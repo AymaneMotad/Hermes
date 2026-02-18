@@ -12,9 +12,9 @@ function FeatureItem({ label, icon }: { label: string; icon: string }) {
   return (
     <button
       type="button"
-      className="flex w-full items-center gap-3 rounded-md border border-[#2f3f56] bg-[#182434] px-3 py-2.5 text-left text-sm text-[#d8e2ee] transition-colors hover:border-[#415774] hover:bg-[#1f2f43]"
+      className="flex w-full items-center gap-3 rounded-md border border-[#d7dee8] bg-[#f8fafc] px-3 py-2.5 text-left text-sm text-[#334155] transition-colors hover:border-[#bfccdb] hover:bg-[#f1f5f9]"
     >
-      <span className="text-[#8ea2ba]">{icon}</span>
+      <span className="text-[#64748b]">{icon}</span>
       {label}
     </button>
   );
@@ -22,18 +22,18 @@ function FeatureItem({ label, icon }: { label: string; icon: string }) {
 
 export function FeaturesPanel() {
   return (
-    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-[#2c3a4c] bg-[#121b28]">
-      <header className="shrink-0 border-b border-[#2c3a4c] px-4 py-3">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8ea2ba]">
+    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-[#d6dde8] bg-[#f3f5f8]">
+      <header className="shrink-0 border-b border-[#d6dde8] px-4 py-3">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#526173]">
           HERMES Q
         </p>
-        <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[#6f869f]">
+        <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[#7c8da1]">
           OpenClaw-ready UI shell
         </p>
       </header>
 
       <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
-        <h2 className="mb-3 text-[11px] font-medium uppercase tracking-wider text-[#8ea2ba]">
+        <h2 className="mb-3 text-[11px] font-medium uppercase tracking-wider text-[#6b7b8f]">
           Features
         </h2>
         <div className="flex flex-col gap-2">
@@ -43,8 +43,8 @@ export function FeaturesPanel() {
         </div>
       </nav>
 
-      <footer className="shrink-0 border-t border-[#2c3a4c] px-4 py-2">
-        <p className="text-[10px] text-[#8ea2ba]">v1.0 enterprise preview</p>
+      <footer className="shrink-0 border-t border-[#d6dde8] px-4 py-2">
+        <p className="text-[10px] text-[#7b8da3]">v1.0 enterprise preview</p>
       </footer>
     </aside>
   );

@@ -111,16 +111,16 @@ export default function Home() {
             <div
               className="inline-block overflow-hidden rounded border-2 shadow-md"
               style={{
-                borderColor: '#2c3a4c',
-                backgroundColor: '#111927',
-                boxShadow: 'inset 0 0 0 1px #233247, 0 8px 26px #03060c',
+                borderColor: '#d4dde8',
+                backgroundColor: '#f8fafc',
+                boxShadow: 'inset 0 0 0 1px #e4eaf2, 0 8px 26px rgba(15, 23, 42, 0.16)',
               }}
             >
               <div
                 className="flex items-center gap-2 px-2 py-1"
                 style={{
-                  backgroundColor: '#182334',
-                  borderBottom: '1px solid #2c3a4c',
+                  backgroundColor: '#eef3f9',
+                  borderBottom: '1px solid #d4dde8',
                 }}
               >
                 <span
@@ -129,7 +129,7 @@ export default function Home() {
                 />
                 <span
                   className="text-[10px] uppercase tracking-wider"
-                  style={{ color: '#8ea2ba' }}
+                  style={{ color: '#5f7086' }}
                 >
                   Realtime
                 </span>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
-import { Application, Container, Graphics, Text, TextStyle } from 'pixi.js';
+import { Application, BlurFilter, Container, Graphics, Text, TextStyle } from 'pixi.js';
 import { usePersonaStore } from '@/store/usePersonaStore';
 import { useOfficeFSM } from '@/hooks/useOfficeFSM';
 import {
@@ -11,17 +11,23 @@ import {
   PRINTER,
   COFFEE,
 } from '@/lib/officeLayout';
-import { lumon } from '@/theme/severance';
 import type { AgentPhase } from '@/store/usePersonaStore';
 import type { Persona } from '@/types/persona';
 
 const COLORS = {
-  floor: 0x2d3440,
-  wall: 0x3a4351,
-  desk: 0x4a5668,
-  printer: 0x6b7789,
-  coffee: 0x536473,
-  accent: 0x95a2b6,
+  wall: 0xf0f2f4,
+  floor: 0xcfd8d1,
+  desk: 0xf2f4f6,
+  monitor: 0x1f2937,
+  printer: 0xd2d9de,
+  coffee: 0xd2d9de,
+  accent: 0xaeb7be,
+};
+
+const GLOW = {
+  blue: 0x3b82f6,
+  cyan: 0x22d3ee,
+  violet: 0x8b5cf6,
 };
 
 const PHASE_CHAT: Record<AgentPhase, string[]> = {
@@ -65,10 +71,10 @@ const LOCATION_CHAT = {
 
 const PHASE_SCALE: Record<AgentPhase, number> = {
   idle: 1,
-  typing: 0.98,
-  stand: 1.04,
+  typing: 0.985,
+  stand: 1.01,
   walk: 1,
-  sit: 0.92,
+  sit: 0.96,
 };
 
 const CHAT_MIN_INTERVAL_MS = 2600;
@@ -112,6 +118,7 @@ type AgentVisual = {
   agent: Container;
   body: Graphics;
   shadow: Graphics;
+  isCoordinator: boolean;
   bubble: Container;
   bubbleBg: Graphics;
   bubbleTail: Graphics;
@@ -132,11 +139,6 @@ type PendingReply = {
   targetId: string;
   text: string;
 };
-
-function hexToNum(hex: string): number {
-  const n = parseInt(hex.slice(1), 16);
-  return (n >> 16) * 65536 + ((n >> 8) & 0xff) * 256 + (n & 0xff);
-}
 
 export function OfficeCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -165,50 +167,85 @@ export function OfficeCanvas() {
     const floor = new Graphics().rect(0, 0, VIEW_WIDTH, VIEW_HEIGHT).fill(COLORS.floor);
     root.addChild(floor);
 
-    // Subtle pixel-tile pattern so the office reads as a room, not a flat block.
+    // Light matte paneling to avoid flat vector look.
     const floorGrid = new Graphics();
     for (let x = 24; x < VIEW_WIDTH - 24; x += 16) {
-      floorGrid.rect(x, 24, 1, VIEW_HEIGHT - 48).fill(0x5b6778, 0.32);
+      floorGrid.rect(x, 24, 1, VIEW_HEIGHT - 48).fill(0xc7cfd8, 0.26);
     }
     for (let y = 24; y < VIEW_HEIGHT - 24; y += 16) {
-      floorGrid.rect(24, y, VIEW_WIDTH - 48, 1).fill(0x232a34, 0.45);
+      floorGrid.rect(24, y, VIEW_WIDTH - 48, 1).fill(0xb9c3ce, 0.22);
     }
     root.addChild(floorGrid);
 
     const zoneTint = new Graphics();
-    zoneTint.roundRect(84, 70, 540, 390, 18).fill(0x253142, 0.24);
-    zoneTint.roundRect(700, 88, 180, 120, 14).fill(0x314055, 0.3);
-    zoneTint.roundRect(700, 315, 180, 120, 14).fill(0x314055, 0.3);
+    // Open workspace cluster.
+    zoneTint.roundRect(80, 88, 420, 312, 18).fill(0xdde3de, 0.55);
+    // Meeting bay.
+    zoneTint.roundRect(515, 220, 170, 150, 14).fill(0xe3e7ec, 0.52);
+    // Coordinator private office.
+    zoneTint.roundRect(675, 60, 230, 140, 14).fill(0xe2e7eb, 0.6);
+    // Service zone.
+    zoneTint.roundRect(690, 245, 190, 220, 14).fill(0xdce3e8, 0.5);
     root.addChild(zoneTint);
+
+    const officeGlass = new Graphics();
+    officeGlass.roundRect(675, 60, 230, 140, 14).stroke({ width: 2, color: 0x94a3b8, alpha: 0.55 });
+    officeGlass.roundRect(684, 70, 212, 116, 10).fill(0xeaf0f6, 0.18);
+    officeGlass.rect(788, 60, 28, 12).fill(0x9aa7ba, 0.55); // door header
+    officeGlass.filters = [new BlurFilter(0.6)];
+    root.addChild(officeGlass);
 
     const walls = new Graphics();
     walls.rect(0, 0, VIEW_WIDTH, 24).fill(COLORS.wall);
     walls.rect(0, 0, 24, VIEW_HEIGHT).fill(COLORS.wall);
     walls.rect(VIEW_WIDTH - 24, 0, 24, VIEW_HEIGHT).fill(COLORS.wall);
     walls.rect(0, VIEW_HEIGHT - 24, VIEW_WIDTH, 24).fill(COLORS.wall);
-    walls.rect(0, 22, VIEW_WIDTH, 2).fill(0x566173);
-    walls.rect(0, VIEW_HEIGHT - 24, VIEW_WIDTH, 2).fill(0x566173);
-    walls.rect(22, 0, 2, VIEW_HEIGHT).fill(0x566173);
-    walls.rect(VIEW_WIDTH - 24, 0, 2, VIEW_HEIGHT).fill(0x566173);
+    walls.rect(0, 22, VIEW_WIDTH, 2).fill(0xc1cad5);
+    walls.rect(0, VIEW_HEIGHT - 24, VIEW_WIDTH, 2).fill(0xc1cad5);
+    walls.rect(22, 0, 2, VIEW_HEIGHT).fill(0xc1cad5);
+    walls.rect(VIEW_WIDTH - 24, 0, 2, VIEW_HEIGHT).fill(0xc1cad5);
     root.addChild(walls);
 
+    // Thin futuristic ceiling lines with controlled glow.
     const ceilingLights = new Graphics();
     const lightY = 10;
     [90, 220, 350, 480, 610, 740, 870].forEach((x) => {
-      ceilingLights.rect(x - 30, lightY, 60, 4).fill(0xb7d4ef, 0.62);
-      ceilingLights.rect(x - 26, lightY + 1, 52, 2).fill(0xd8e8f6, 0.78);
+      ceilingLights.rect(x - 34, lightY, 68, 2).fill(0xf3f6fb, 0.9);
+      ceilingLights.rect(x - 30, lightY + 2, 60, 1).fill(0xe9eff8, 0.8);
     });
     root.addChild(ceilingLights);
 
+    const ceilingGlow = new Graphics();
+    [90, 220, 350, 480, 610, 740, 870].forEach((x, idx) => {
+      const color = idx % 3 === 0 ? GLOW.blue : idx % 3 === 1 ? GLOW.cyan : GLOW.violet;
+      ceilingGlow.rect(x - 32, lightY - 1, 64, 4).fill(color, 0.1);
+    });
+    ceilingGlow.filters = [new BlurFilter(6)];
+    ceilingGlow.blendMode = 'add';
+    root.addChild(ceilingGlow);
+
+    // Subtle vignette on edges.
+    const vignette = new Graphics();
+    for (let i = 0; i < 6; i++) {
+      const inset = i * 8;
+      vignette
+        .rect(inset, inset, VIEW_WIDTH - inset * 2, VIEW_HEIGHT - inset * 2)
+        .stroke({ width: 12, color: 0x738091, alpha: 0.03 + i * 0.01 });
+    }
+    root.addChild(vignette);
+
     const labels = new TextStyle({
-      fill: 0x9ab0c8,
+      fill: 0x7a8799,
       fontSize: 10,
       fontFamily: 'IBM Plex Sans, system-ui, sans-serif',
       fontWeight: '600',
     });
-    const operationsLabel = new Text({ text: 'OPEN FLOOR - EXECUTION LANES', style: labels });
+    const operationsLabel = new Text({ text: 'SEVERANCE FLOOR - EXECUTION LANES', style: labels });
     operationsLabel.position.set(36, 34);
     root.addChild(operationsLabel);
+    const coordinatorLabel = new Text({ text: 'COORDINATOR OFFICE', style: labels });
+    coordinatorLabel.position.set(716, 46);
+    root.addChild(coordinatorLabel);
     const printerLabel = new Text({ text: 'SERVICE / PRINTER', style: labels });
     printerLabel.position.set(PRINTER.x - 62, PRINTER.y - 44);
     root.addChild(printerLabel);
@@ -219,76 +256,113 @@ export function OfficeCanvas() {
 
   const drawFurniture = useCallback((root: Container) => {
     DESKS.forEach((d) => {
+      const isCoordinatorDesk = d.id === 'desk-1';
+      const deskShadow = new Graphics();
+      deskShadow.ellipse(d.x, d.y + 22, isCoordinatorDesk ? 46 : 36, isCoordinatorDesk ? 14 : 12).fill(0x5f6a78, 0.16);
+      root.addChild(deskShadow);
+
       const desk = new Graphics();
-      desk.rect(d.x - 36, d.y - 22, 72, 44).fill(COLORS.desk).stroke({ width: 1, color: COLORS.accent });
-      desk.rect(d.x - 36, d.y + 20, 72, 2).fill(0x364153);
-      desk.rect(d.x - 34, d.y - 20, 68, 3).fill(0x7f8ca0, 0.45);
-      desk.rect(d.x - 32, d.y - 12, 14, 26).fill(0x435066).stroke({ width: 1, color: 0x7f8ca0 });
-      desk.rect(d.x - 32, d.y + 1, 14, 1).fill(0x323c4c);
-      desk.rect(d.x + 18, d.y - 12, 14, 26).fill(0x435066).stroke({ width: 1, color: 0x7f8ca0 });
-      desk.rect(d.x + 18, d.y + 1, 14, 1).fill(0x323c4c);
+      const deskW = isCoordinatorDesk ? 94 : 72;
+      const deskH = isCoordinatorDesk ? 52 : 44;
+      desk.roundRect(d.x - deskW / 2, d.y - 22, deskW, deskH, 8).fill(COLORS.desk).stroke({ width: 1, color: COLORS.accent, alpha: 0.8 });
+      desk.roundRect(d.x - deskW / 2 + 2, d.y - 20, deskW - 4, 5, 3).fill(0xffffff, 0.45);
+      desk.roundRect(d.x - deskW / 2 + 4, d.y - 10, 14, 24, 3).fill(0xe8edf1).stroke({ width: 1, color: 0xc7d0dc, alpha: 0.9 });
+      desk.roundRect(d.x + deskW / 2 - 18, d.y - 10, 14, 24, 3).fill(0xe8edf1).stroke({ width: 1, color: 0xc7d0dc, alpha: 0.9 });
       root.addChild(desk);
 
       const monitor = new Graphics();
-      monitor.rect(d.x - 18, d.y - 19, 36, 14).fill(0x27303a).stroke({ width: 1, color: 0x141b22 });
-      monitor.rect(d.x - 15, d.y - 16, 30, 8).fill(0x79b6c5, 0.95);
-      monitor.rect(d.x - 2, d.y - 5, 4, 4).fill(0x4b5764);
-      monitor.rect(d.x - 8, d.y - 1, 16, 2).fill(0x5e6d7f);
+      const monitorW = isCoordinatorDesk ? 46 : 36;
+      const monitorX = d.x - monitorW / 2;
+      monitor.roundRect(monitorX, d.y - 19, monitorW, 14, 3).fill(COLORS.monitor).stroke({ width: 1, color: 0x374151 });
+      monitor.roundRect(monitorX + 3, d.y - 16, monitorW - 6, 8, 2).fill(0x111827);
+      monitor.rect(d.x - 2, d.y - 5, 4, 4).fill(0x4b5563);
+      monitor.roundRect(d.x - 10, d.y - 1, 20, 2, 1).fill(0x6b7280);
       root.addChild(monitor);
 
+      const monitorGlow = new Graphics();
+      monitorGlow.roundRect(monitorX + 2, d.y - 17, monitorW - 4, 10, 2).stroke({ width: 1, color: isCoordinatorDesk ? GLOW.violet : GLOW.cyan, alpha: 0.3 });
+      monitorGlow.roundRect(d.x - deskW / 2, d.y + 20, deskW, 2, 1).fill(GLOW.blue, 0.15);
+      monitorGlow.filters = [new BlurFilter(3)];
+      monitorGlow.blendMode = 'add';
+      root.addChild(monitorGlow);
+
       const keyboard = new Graphics();
-      keyboard.rect(d.x - 14, d.y + 4, 28, 6).fill(0x8c97a8).stroke({ width: 1, color: 0x5a6577 });
+      keyboard.roundRect(d.x - 14, d.y + 4, 28, 6, 2).fill(0xdbe2ea).stroke({ width: 1, color: 0xb8c2ce });
       root.addChild(keyboard);
 
       const chair = new Graphics();
-      chair.rect(d.x - 10, d.y + 16, 20, 6).fill(0x69798f);
-      chair.rect(d.x - 2, d.y + 22, 4, 8).fill(0x546177);
-      chair.rect(d.x - 8, d.y + 30, 16, 2).fill(0x3e495b);
+      chair.roundRect(d.x - 10, d.y + 16, 20, 6, 3).fill(isCoordinatorDesk ? 0xbfc9d7 : 0xc9d2de);
+      chair.rect(d.x - 2, d.y + 22, 4, 8).fill(0xb5bfcc);
+      chair.roundRect(d.x - 8, d.y + 30, 16, 2, 1).fill(0x9ca8b7);
       root.addChild(chair);
     });
 
     const printer = new Graphics();
-    printer.rect(PRINTER.x - 24, PRINTER.y - 20, 48, 38).fill(0x8f9bad).stroke({ width: 1, color: 0x546177 });
-    printer.rect(PRINTER.x - 20, PRINTER.y - 14, 40, 8).fill(0x7c899d);
-    printer.rect(PRINTER.x - 16, PRINTER.y - 6, 32, 16).fill(0x2f3844);
-    printer.rect(PRINTER.x - 10, PRINTER.y + 12, 20, 4).fill(0x6f7b8e);
-    printer.rect(PRINTER.x + 14, PRINTER.y - 16, 6, 4).fill(0x556379);
-    printer.rect(PRINTER.x + 14, PRINTER.y - 11, 2, 2).fill(0x83d3a0);
-    printer.rect(PRINTER.x - 14, PRINTER.y - 23, 28, 4).fill(0xd9e1eb);
-    printer.rect(PRINTER.x - 10, PRINTER.y - 27, 20, 4).fill(0xe7edf5, 0.95);
+    printer.roundRect(PRINTER.x - 24, PRINTER.y - 20, 48, 38, 7).fill(COLORS.printer).stroke({ width: 1, color: 0xb7c1ce });
+    printer.roundRect(PRINTER.x - 20, PRINTER.y - 14, 40, 8, 2).fill(0xc5ced9);
+    printer.roundRect(PRINTER.x - 16, PRINTER.y - 6, 32, 16, 2).fill(0x374151);
+    printer.roundRect(PRINTER.x - 10, PRINTER.y + 12, 20, 4, 1).fill(0xb6c0cd);
+    printer.roundRect(PRINTER.x + 14, PRINTER.y - 16, 6, 4, 1).fill(0x9da8b7);
+    printer.roundRect(PRINTER.x - 14, PRINTER.y - 23, 28, 4, 1).fill(0xf5f7fb);
+    printer.roundRect(PRINTER.x - 10, PRINTER.y - 27, 20, 4, 1).fill(0xffffff, 0.96);
     root.addChild(printer);
 
+    const printerGlow = new Graphics();
+    printerGlow.circle(PRINTER.x + 15, PRINTER.y - 10, 2).fill(GLOW.cyan, 0.75);
+    printerGlow.circle(PRINTER.x + 15, PRINTER.y - 10, 5).fill(GLOW.cyan, 0.25);
+    printerGlow.filters = [new BlurFilter(4)];
+    printerGlow.blendMode = 'add';
+    root.addChild(printerGlow);
+
     const coffee = new Graphics();
-    coffee.rect(COFFEE.x - 22, COFFEE.y - 24, 44, 50).fill(0x6d7787).stroke({ width: 1, color: 0x475466 });
-    coffee.rect(COFFEE.x - 16, COFFEE.y - 18, 32, 10).fill(0x2e3742);
-    coffee.rect(COFFEE.x - 8, COFFEE.y - 6, 16, 18).fill(COLORS.coffee).stroke({ width: 1, color: 0x405160 });
-    coffee.rect(COFFEE.x - 10, COFFEE.y + 14, 20, 4).fill(0x4e5969);
-    coffee.rect(COFFEE.x + 10, COFFEE.y - 3, 6, 6).fill(0x96a3b6);
-    coffee.rect(COFFEE.x - 26, COFFEE.y + 18, 52, 6).fill(0x5d6778);
+    coffee.roundRect(COFFEE.x - 22, COFFEE.y - 24, 44, 50, 7).fill(COLORS.coffee).stroke({ width: 1, color: 0xb7c1ce });
+    coffee.roundRect(COFFEE.x - 16, COFFEE.y - 18, 32, 10, 2).fill(0xc5ced9);
+    coffee.roundRect(COFFEE.x - 8, COFFEE.y - 6, 16, 18, 2).fill(0x4b5563).stroke({ width: 1, color: 0x6b7280 });
+    coffee.roundRect(COFFEE.x - 10, COFFEE.y + 14, 20, 4, 1).fill(0xb6c0cd);
+    coffee.roundRect(COFFEE.x + 10, COFFEE.y - 3, 6, 6, 2).fill(0x9da8b7);
+    coffee.roundRect(COFFEE.x - 26, COFFEE.y + 18, 52, 6, 2).fill(0xc0c8d4);
     root.addChild(coffee);
 
+    const coffeeGlow = new Graphics();
+    coffeeGlow.roundRect(COFFEE.x - 7, COFFEE.y - 4, 14, 4, 2).fill(GLOW.violet, 0.28);
+    coffeeGlow.filters = [new BlurFilter(4)];
+    coffeeGlow.blendMode = 'add';
+    root.addChild(coffeeGlow);
+
     const mugs = new Graphics();
-    mugs.rect(COFFEE.x - 14, COFFEE.y + 20, 5, 4).fill(0xc3ccd9).stroke({ width: 1, color: 0x6a7486 });
-    mugs.rect(COFFEE.x - 6, COFFEE.y + 20, 5, 4).fill(0xb6c4d3).stroke({ width: 1, color: 0x667486 });
-    mugs.rect(COFFEE.x + 2, COFFEE.y + 20, 5, 4).fill(0xcdd6e2).stroke({ width: 1, color: 0x727d90 });
+    mugs.roundRect(COFFEE.x - 14, COFFEE.y + 20, 5, 4, 1).fill(0xf3f5f8).stroke({ width: 1, color: 0xb0bac8 });
+    mugs.roundRect(COFFEE.x - 6, COFFEE.y + 20, 5, 4, 1).fill(0xebeff5).stroke({ width: 1, color: 0xb0bac8 });
+    mugs.roundRect(COFFEE.x + 2, COFFEE.y + 20, 5, 4, 1).fill(0xf8fafc).stroke({ width: 1, color: 0xb0bac8 });
     root.addChild(mugs);
 
     const meetingTable = new Graphics();
-    meetingTable.roundRect(700, 222, 180, 72, 12).fill(0x455366).stroke({ width: 1, color: 0x8aa0be });
-    meetingTable.roundRect(708, 230, 164, 56, 8).fill(0x55657a, 0.6);
+    meetingTable.roundRect(522, 254, 156, 78, 14).fill(0xebeff3).stroke({ width: 1, color: 0xbec8d3 });
+    meetingTable.roundRect(530, 262, 140, 62, 10).fill(0xdfe5eb, 0.78);
     root.addChild(meetingTable);
 
     const meetingChairs = new Graphics();
-    [714, 756, 798, 840].forEach((x) => {
-      meetingChairs.roundRect(x, 206, 24, 10, 3).fill(0x64778f);
-      meetingChairs.roundRect(x, 296, 24, 10, 3).fill(0x64778f);
+    const topXs = [534, 572, 610, 648];
+    topXs.forEach((x) => {
+      // top chairs
+      meetingChairs.roundRect(x, 236, 20, 8, 3).fill(0xc8d1dd); // back
+      meetingChairs.roundRect(x + 1, 244, 18, 9, 3).fill(0xd6dde7); // seat
+      // bottom chairs
+      meetingChairs.roundRect(x, 333, 20, 8, 3).fill(0xc8d1dd); // back
+      meetingChairs.roundRect(x + 1, 324, 18, 9, 3).fill(0xd6dde7); // seat
+    });
+    // left / right side chairs
+    [273, 304].forEach((y) => {
+      meetingChairs.roundRect(500, y, 8, 20, 3).fill(0xc8d1dd); // back
+      meetingChairs.roundRect(508, y + 1, 9, 18, 3).fill(0xd6dde7); // seat
+      meetingChairs.roundRect(681, y, 8, 20, 3).fill(0xc8d1dd); // back
+      meetingChairs.roundRect(672, y + 1, 9, 18, 3).fill(0xd6dde7); // seat
     });
     root.addChild(meetingChairs);
 
     const storageWall = new Graphics();
-    storageWall.rect(916, 84, 32, 360).fill(0x2a3443).stroke({ width: 1, color: 0x5d718c });
+    storageWall.rect(916, 84, 32, 360).fill(0xe0e6ee).stroke({ width: 1, color: 0xb9c4d2 });
     for (let y = 96; y < 430; y += 28) {
-      storageWall.rect(920, y, 24, 16).fill(0x3b4a5d);
+      storageWall.rect(920, y, 24, 16).fill(0xc8d1de);
     }
     root.addChild(storageWall);
 
@@ -300,10 +374,10 @@ export function OfficeCanvas() {
       [892, 400],
     ];
     plantSpots.forEach(([x, y]) => {
-      plants.roundRect(x - 8, y + 8, 16, 8, 2).fill(0x5a6678);
-      plants.circle(x, y, 10).fill(0x56886f);
-      plants.circle(x - 6, y + 2, 6).fill(0x6ea385);
-      plants.circle(x + 6, y + 2, 6).fill(0x6ea385);
+      plants.roundRect(x - 8, y + 8, 16, 8, 2).fill(0xc2cad5);
+      plants.circle(x, y, 10).fill(0x9fb4a0);
+      plants.circle(x - 6, y + 2, 6).fill(0xb5c7b6);
+      plants.circle(x + 6, y + 2, 6).fill(0xb5c7b6);
     });
     root.addChild(plants);
   }, []);
@@ -388,46 +462,110 @@ export function OfficeCanvas() {
   const redrawAgentBody = useCallback((visual: AgentVisual, isSelected: boolean, phase: AgentPhase, timeMs: number) => {
     const body = visual.body;
     const shadow = visual.shadow;
-    const baseColor = isSelected ? hexToNum(lumon.fluorescentBlue) : 0x424e4f;
+    const isCoordinator = visual.isCoordinator;
+    const accent = isSelected
+      ? GLOW.blue
+      : visual.walkOffset < (Math.PI * 2) / 3
+        ? GLOW.blue
+        : visual.walkOffset < ((Math.PI * 2) / 3) * 2
+          ? GLOW.cyan
+          : GLOW.violet;
 
     const elapsed = timeMs - visual.phaseStartMs;
-    const walkCycle = (elapsed * 0.018) + visual.walkOffset;
-    const typeCycle = elapsed * 0.012;
+    const walkCycle = elapsed * 0.012 + visual.walkOffset;
+    const typeCycle = elapsed * 0.008;
 
     let yBob = 0;
-    if (phase === 'walk') yBob = Math.sin(walkCycle) * 2;
-    if (phase === 'typing') yBob = Math.sin(typeCycle) * 1.2;
+    if (phase === 'walk') yBob = Math.sin(walkCycle * 1.1) * 1.2;
+    if (phase === 'typing') yBob = Math.sin(typeCycle) * 0.35;
+    if (phase === 'stand') yBob = Math.sin(typeCycle * 0.6) * 0.22;
 
-    const scaleY = PHASE_SCALE[phase] + (phase === 'walk' ? Math.abs(Math.sin(walkCycle)) * 0.05 : 0);
-    const scaleX = 1 + (phase === 'walk' ? Math.abs(Math.sin(walkCycle + Math.PI / 2)) * 0.06 : 0);
+    const scaleY = PHASE_SCALE[phase] + (phase === 'walk' ? Math.abs(Math.sin(walkCycle)) * 0.04 : 0);
+    const scaleX = 1 + (phase === 'walk' ? Math.abs(Math.sin(walkCycle + Math.PI / 2)) * 0.04 : 0);
     body.scale.set(scaleX, scaleY);
     body.position.set(0, yBob);
 
+    // Soft radial depth under each agent.
     shadow.clear();
-    shadow.ellipse(0, 12, 10 + (phase === 'walk' ? 2 : 0), 4).fill(0x25282a, 0.2);
+    shadow.ellipse(0, 12, 9 + (phase === 'walk' ? 2 : 0), 4).fill(0x5f6977, 0.14);
+    shadow.ellipse(0, 12, 12 + (phase === 'walk' ? 2 : 0), 6).fill(0x5f6977, 0.05);
 
     body.clear();
-    if (phase === 'sit') {
-      body.roundRect(-12, -10, 24, 18, 7).fill(baseColor);
-    } else {
-      body.circle(0, 0, 13).fill(baseColor);
+    if (isCoordinator) {
+      // Coordinator: more human/professional proportions, still stylized for top-down readability.
+      const headY = phase === 'sit' ? -7.8 : -10.8;
+      const torsoY = phase === 'sit' ? -1.8 : -0.8;
+      const torsoH = phase === 'sit' ? 14 : 18;
+      const idleBreath = Math.sin(typeCycle * 0.55) * 0.18;
+
+      body.circle(0, headY + idleBreath, 4.8).fill(0xf2ddcc);
+      body.circle(-1.35, headY - 0.4 + idleBreath, 0.45).fill(0x374151);
+      body.circle(1.35, headY - 0.4 + idleBreath, 0.45).fill(0x374151);
+      body.roundRect(-1.2, headY + 1.6 + idleBreath, 2.4, 0.5, 0.2).fill(0x9f7f70, 0.8);
+
+      // Hair cap
+      body.roundRect(-4.8, headY - 4.2 + idleBreath, 9.6, 2.8, 1.4).fill(0x4b5563, 0.95);
+
+      // Blazer + shirt/tie
+      body.roundRect(-5.3, torsoY, 10.6, torsoH, 3.2).fill(0x2f3a4a);
+      body.roundRect(-6.5, torsoY + 2.2, 13, 4.2, 2.2).fill(0x3a4658);
+      body.roundRect(-1.35, torsoY + 2.6, 2.7, torsoH - 4.2, 1.1).fill(0xe6e9ee);
+      body.roundRect(-0.5, torsoY + 4.2, 1, torsoH - 7.2, 0.6).fill(0x55627a);
+      body.roundRect(3.4, torsoY + 3.2, 1.2, torsoH - 6, 0.7).fill(GLOW.violet, 0.45);
+
+      // Arms and legs (minimal because he mostly stays in office).
+      body.roundRect(-7.3, torsoY + 3.5, 2.1, 7.2, 1.2).fill(0x3b4758);
+      body.roundRect(5.2, torsoY + 3.5, 2.1, 7.2, 1.2).fill(0x3b4758);
+      const legY = phase === 'sit' ? torsoY + torsoH - 2 : torsoY + torsoH;
+      body.roundRect(-3.8, legY, 2.6, 6.3, 1.1).fill(0x1f2937);
+      body.roundRect(1.2, legY, 2.6, 6.3, 1.1).fill(0x1f2937);
+
+      body.rotation = 0;
+      if (phase === 'typing') {
+        const glowAlpha = 0.06 + Math.abs(Math.sin(typeCycle)) * 0.05;
+        body.circle(0, headY + idleBreath, 5.6).fill(GLOW.cyan, glowAlpha);
+      }
+      return;
     }
 
-    body.circle(4, -2, 3).fill(0xe8eaec);
+    const headY = phase === 'sit' ? -7 : -10;
+    const torsoY = phase === 'sit' ? -2 : -1;
+    const torsoH = phase === 'sit' ? 13 : 16;
 
-    if (phase === 'typing') {
-      const armY = Math.sin(typeCycle) * 1.5;
-      body.rect(7, 1 + armY, 6, 3).fill(hexToNum(lumon.refinerGreen));
-      body.rect(-13, 1 - armY, 5, 3).fill(hexToNum(lumon.refinerGreen));
-    }
+    // Head: small minimal form.
+    body.circle(0, headY, 4.2).fill(0xf4f6f9);
+    body.circle(-1.2, headY - 0.3, 0.45).fill(0x4b5563);
+    body.circle(1.2, headY - 0.3, 0.45).fill(0x4b5563);
 
+    // Torso + shoulders: slim professional silhouette.
+    body.roundRect(-4.8, torsoY, 9.6, torsoH, 3.2).fill(0x2f3a4a);
+    body.roundRect(-6.2, torsoY + 2.2, 12.4, 3.6, 2).fill(0x3a4657);
+    body.roundRect(-1, torsoY + 2.6, 2, torsoH - 4, 1).fill(0xe5e7eb);
+    body.roundRect(2.8, torsoY + 2.8, 1.4, torsoH - 5, 1).fill(accent, 0.4);
+
+    // Arms: subtle movement only.
+    const armSwing = phase === 'walk' ? Math.sin(walkCycle * 1.25) * 2.2 : phase === 'typing' ? Math.sin(typeCycle) * 0.8 : 0;
+    body.roundRect(-7, torsoY + 3 + armSwing * 0.55, 2, 7, 1.2).fill(0x3b4758);
+    body.roundRect(5, torsoY + 3 - armSwing * 0.55, 2, 7, 1.2).fill(0x3b4758);
+
+    // Legs: controlled walking cycle, no exaggerated bounce.
+    const legOffset = phase === 'walk' ? Math.sin(walkCycle * 1.35) * 3.2 : 0;
+    const legY = phase === 'sit' ? torsoY + torsoH - 2 : torsoY + torsoH;
+    body.roundRect(-3.6, legY + legOffset * 0.52, 2.5, 6.2, 1.1).fill(0x1f2937);
+    body.roundRect(1.1, legY - legOffset * 0.52, 2.5, 6.2, 1.1).fill(0x1f2937);
+
+    // Walking posture: subtle lean/sway to prevent glide look.
     if (phase === 'walk') {
-      const legOffset = Math.sin(walkCycle) * 2;
-      body.roundRect(-6, 9 + legOffset, 5, 6, 2).fill(0x2f3738);
-      body.roundRect(1, 9 - legOffset, 5, 6, 2).fill(0x2f3738);
+      body.rotation = Math.sin(walkCycle * 0.7) * 0.07;
+    } else {
+      body.rotation = 0;
     }
 
-    // Keep stand distinct with posture only, without bright floor-like flash accents.
+    // Typing screen bounce-light on face.
+    if (phase === 'typing') {
+      const glowAlpha = 0.08 + Math.abs(Math.sin(typeCycle)) * 0.06;
+      body.circle(0, headY - 0.1, 5.3).fill(GLOW.cyan, glowAlpha);
+    }
   }, []);
 
   const getLocationContext = useCallback((position: [number, number]): 'printer' | 'coffee' | 'desk' | null => {
@@ -544,6 +682,7 @@ export function OfficeCanvas() {
           agent,
           body,
           shadow,
+          isCoordinator: Boolean(p.isCoordinator),
           bubble,
           bubbleBg,
           bubbleTail,
