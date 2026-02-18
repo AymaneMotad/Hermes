@@ -150,7 +150,7 @@ export default function Home() {
                     <span className="text-[#7e8da0]">{point.label}</span>
                     <div className="h-2 overflow-hidden rounded-full bg-[#edf1f6]">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-[#7aa5ff] via-[#9ebbf8] to-[#ff9b8f]"
+                        className="h-full rounded-full bg-linear-to-r from-[#7aa5ff] via-[#9ebbf8] to-[#ff9b8f]"
                         style={{ width: `${Math.round((point.value / maxTrend) * 100)}%` }}
                       />
                     </div>
@@ -178,7 +178,7 @@ export default function Home() {
               </div>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#edf1f6]">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#8dc6ad] via-[#b8c4d6] to-[#e8a8af]"
+                  className="h-full rounded-full bg-linear-to-r from-[#8dc6ad] via-[#b8c4d6] to-[#e8a8af]"
                   style={{ width: `${Math.max(12, Math.min(100, successRate))}%` }}
                 />
               </div>

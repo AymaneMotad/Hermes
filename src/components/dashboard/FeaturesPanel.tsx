@@ -42,7 +42,7 @@ export function FeaturesPanel({ connected }: FeaturesPanelProps) {
           </div>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#eceff4]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#6f8ac2] via-[#9ab2de] to-[#ff8f82]"
+              className="h-full rounded-full bg-linear-to-r from-[#6f8ac2] via-[#9ab2de] to-[#ff8f82]"
               style={{ width: `${Math.min(100, Math.max(8, utilization))}%` }}
             />
           </div>
